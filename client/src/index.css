@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply antialiased;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
+  body {
+    @apply bg-comic-cream text-black font-comic font-bold;
+    background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23000000" fill-opacity="0.03" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E'),
+                      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,0,0,0.03) 20px, rgba(0,0,0,0.03) 22px),
+                      repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0,0,0,0.03) 20px, rgba(0,0,0,0.03) 22px);
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* All headings uppercase with letter spacing */
+  h1, h2, h3, h4, h5, h6 {
+    @apply uppercase tracking-wider font-bangers;
+  }
+}
+
+@layer components {
+  /* Buttons with starburst effect on hover */
+  .btn-primary {
+    @apply bg-comic-red text-white px-6 py-3 border-comic border-black font-bangers text-lg uppercase tracking-widest shadow-comic transition-all;
+    @apply hover:bg-comic-yellow hover:text-black active:scale-95 active:shadow-comic-sm;
+  }
+  
+  .btn-secondary {
+    @apply bg-comic-blue text-white px-6 py-3 border-comic border-black font-bangers text-lg uppercase tracking-widest shadow-comic transition-all;
+    @apply hover:bg-comic-yellow hover:text-black active:scale-95 active:shadow-comic-sm;
+  }
+  
+  .btn-success {
+    @apply bg-comic-green text-black px-6 py-3 border-comic border-black font-bangers text-lg uppercase tracking-widest shadow-comic transition-all;
+    @apply hover:bg-comic-yellow active:scale-95 active:shadow-comic-sm;
+  }
+  
+  /* Input fields with yellow focus glow */
+  .input {
+    @apply w-full px-4 py-3 border-comic border-black bg-white transition-all font-comic font-bold text-base;
+    @apply focus:outline-none focus:shadow-glow-yellow focus:border-comic-yellow;
+  }
+  
+  /* Cards/Panels with halftone background */
+  .card {
+    @apply bg-white shadow-comic-lg p-6 border-comic border-black relative;
+    background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23000000" fill-opacity="0.02" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E');
+  }
+  
+  /* Speech Bubbles for Messages */
+  .speech-bubble {
+    @apply relative bg-white border-comic border-black p-4 shadow-comic;
+    border-radius: 1.5rem 1.5rem 1.5rem 0.25rem;
+  }
+  
+  .speech-bubble-right {
+    @apply relative bg-comic-yellow border-comic border-black p-4 shadow-comic;
+    border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
+  }
+
+  /* Speech bubble tails */
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-right-color: white;
+    border-bottom-color: white;
+    border-left: 0;
+    border-bottom: 0;
+    filter: drop-shadow(-3px 3px 0 black);
+  }
+
+  .speech-bubble-right::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -10px;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-left-color: #ffff00;
+    border-bottom-color: #ffff00;
+    border-right: 0;
+    border-bottom: 0;
+    filter: drop-shadow(3px 3px 0 black);
+  }
+
+  /* Comic Stickers/Reactions */
+  .comic-sticker {
+    @apply inline-block px-4 py-2 font-bangers text-2xl uppercase border-comic border-black shadow-comic-lg;
+    @apply bg-comic-yellow text-black transform -rotate-3;
+    text-shadow: 2px 2px 0 white, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+  }
+
+  /* Comic Explosion Text */
+  .comic-explosion {
+    @apply font-bangers text-8xl uppercase text-comic-red;
+    text-shadow: 
+      3px 3px 0 black,
+      6px 6px 0 rgba(255, 255, 0, 0.8),
+      9px 9px 0 rgba(0, 102, 255, 0.6);
+    animation: kapow 0.8s ease-out;
+  }
+
+  /* Notification Badge */
+  .notification-badge {
+    @apply bg-comic-red text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bangers shadow-comic-sm border-2 border-black;
+  }
+}

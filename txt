@@ -1,0 +1,563 @@
+# FriendChat - Complete PRD & Workflow
+
+---
+
+## 1. Executive Summary
+
+**What:** A lightweight real-time chat app for ~50 friends
+
+**Goals:**
+- Instant messaging with real-time delivery
+- Friend discovery and connection management
+- Zero monthly costs (free-tier only)
+- Simple, intuitive UX
+
+**Success Metrics:**
+- Message delivery under 500ms
+- 99% uptime
+- Support 50 concurrent users
+- $0 operational cost
+
+---
+
+## 2. Technology Stack (All Free Tier)
+
+| Layer | Technology | Free Tier Limits |
+|-------|------------|------------------|
+| Frontend | React.js + Vite | Open source |
+| Backend | Node.js + Express | Open source |
+| Real-time | Socket.io | Open source |
+| Database | MongoDB Atlas | 512MB storage |
+| Auth | Firebase Auth | 50K monthly users |
+| File Storage | Cloudinary | 25GB storage, 25GB bandwidth/month |
+| Frontend Hosting | Vercel | 100GB bandwidth |
+| Backend Hosting | Render | 750 hours/month (sleeps after 15min idle) |
+| Push Notifications | Firebase FCM | Unlimited |
+
+**Free Tier Limitations & Fixes:**
+
+| Problem | Impact | Solution |
+|---------|--------|----------|
+| Render sleeps after 15min | ~30s cold start delay | Use cron-job.org to ping every 14min |
+| MongoDB 512MB limit | Limited history | Auto-delete messages after 30 days |
+| Cloudinary 25GB bandwidth | Limited image sharing | Compress images, max 2MB per file |
+
+---
+
+## 3. Feature Specifications
+
+### 3.1 Authentication (5 features)
+1. **User Registration** - Email/password signup with validation
+2. **Login/Logout** - JWT-based session management
+3. **Password Reset** - Email-based recovery
+4. **Email Verification** - Confirm email before activation
+5. **Session Management** - Handle multiple device logins
+
+**Technical Notes:**
+- Firebase handles all auth (passwords never in MongoDB)
+- JWT expires in 7 days, refresh token in 30 days
+- Password: min 8 chars, 1 number, 1 special character
+
+---
+
+### 3.2 User Profile (5 features)
+1. **Profile Picture** - Upload, crop, display avatar
+2. **Display Name** - Shown to other users
+3. **Username** - Unique identifier (@username)
+4. **Bio/Status** - Max 150 characters
+5. **Online Status** - Real-time online/offline indicator
+6. **Last Seen** - Timestamp of last activity
+
+**Technical Notes:**
+- Images stored in Cloudinary, auto-resize to 200x200px
+- Username: alphanumeric + underscore, 3-20 chars
+- Online status via Socket.io heartbeat every 30 seconds
+
+---
+
+### 3.3 Friend System (7 features)
+1. **Search Users** - Find by username or email
+2. **Send Friend Request** - Initiate connection
+3. **Receive Friend Request** - Get notified
+4. **Accept/Decline Request** - Respond to requests
+5. **Cancel Sent Request** - Withdraw pending request
+6. **Unfriend** - Remove connection
+7. **Block/Unblock** - Prevent messages/requests
+8. **Friends List** - View all friends with online status
+
+**Technical Notes:**
+- Search with 300ms debounce
+- Real-time notifications via Socket.io
+- Blocked users can't see your profile
+
+---
+
+### 3.4 One-on-One Chat (10 features)
+1. **Real-time Messaging** - Instant delivery via WebSocket
+2. **Typing Indicator** - "User is typing..."
+3. **Message Status** - Sent ✓, Delivered ✓✓, Read (blue) ✓✓
+4. **Image Sharing** - Send images in chat
+5. **Emoji Support** - Full emoji picker
+6. **Reply to Message** - Quote specific message
+7. **Delete Message** - For me / for everyone
+8. **Edit Message** - Within 15 minutes
+9. **Search in Chat** - Find messages in conversation
+10. **Chat History** - Paginated loading
+
+**Technical Notes:**
+- Offline messages queued, delivered on reconnect
+- Typing indicator timeout: 3 seconds
+- Pagination: 50 messages per load
+- Images compressed to max 1MB
+- Messages auto-delete after 30 days
+
+---
+
+### 3.5 Notifications (3 features)
+1. **Push Notifications** - Browser/mobile via FCM
+2. **In-App Notifications** - Badge counts and alerts
+3. **Mute Chat** - Disable per conversation
+
+---
+
+## 4. Database Schema
+
+### 4.1 Users Collection
+```
+{
+  _id: ObjectId,
+  firebaseUid: String,        // Firebase Auth UID (indexed)
+  email: String,              // Unique, indexed
+  username: String,           // Unique, indexed
+  displayName: String,
+  avatarUrl: String,          // Cloudinary URL
+  bio: String,                // Max 150 chars
+  isOnline: Boolean,
+  lastSeen: Date,
+  friends: [ObjectId],        // Array of friend user IDs
+  blocked: [ObjectId],        // Array of blocked user IDs
+  fcmTokens: [String],        // Push notification tokens
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### 4.2 Friend Requests Collection
+```
+{
+  _id: ObjectId,
+  from: ObjectId,             // Sender (indexed)
+  to: ObjectId,               // Receiver (indexed)
+  status: String,             // "pending" | "accepted" | "declined"
+  createdAt: Date,
+  respondedAt: Date
+}
+```
+
+### 4.3 Conversations Collection
+```
+{
+  _id: ObjectId,
+  participants: [ObjectId],   // Two user IDs (indexed)
+  lastMessage: {
+    text: String,
+    sender: ObjectId,
+    timestamp: Date
+  },
+  mutedBy: [ObjectId],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### 4.4 Messages Collection
+```
+{
+  _id: ObjectId,
+  conversationId: ObjectId,   // Indexed
+  sender: ObjectId,
+  type: String,               // "text" | "image"
+  content: String,            // Text or image URL
+  replyTo: ObjectId,          // Nullable
+  status: String,             // "sent" | "delivered" | "read"
+  isEdited: Boolean,
+  deletedFor: [ObjectId],
+  deletedForEveryone: Boolean,
+  createdAt: Date,            // Indexed, TTL 30 days
+  editedAt: Date
+}
+```
+
+### 4.5 Database Indexes
+```
+users: { firebaseUid: 1 }, { email: 1 }, { username: 1 }
+friendRequests: { from: 1, to: 1 }, { to: 1, status: 1 }
+conversations: { participants: 1 }
+messages: { conversationId: 1, createdAt: -1 }
+messages: { createdAt: 1 } TTL 30 days
+```
+
+---
+
+## 5. API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Login, return JWT |
+| POST | /api/auth/logout | Invalidate session |
+| POST | /api/auth/forgot-password | Send reset email |
+| POST | /api/auth/verify-email | Verify email |
+
+### Users
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/users/me | Get current profile |
+| PUT | /api/users/me | Update profile |
+| POST | /api/users/me/avatar | Upload profile picture |
+| GET | /api/users/search?q= | Search users |
+| GET | /api/users/:id | Get user by ID |
+
+### Friends
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/friends | Get friends list |
+| POST | /api/friends/request | Send friend request |
+| GET | /api/friends/requests | Get pending requests |
+| PUT | /api/friends/request/:id | Accept/decline |
+| DELETE | /api/friends/request/:id | Cancel sent request |
+| DELETE | /api/friends/:id | Remove friend |
+| POST | /api/friends/block/:id | Block user |
+| DELETE | /api/friends/block/:id | Unblock user |
+
+### Chat
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/conversations | Get all conversations |
+| POST | /api/conversations | Create/get conversation |
+| GET | /api/conversations/:id/messages | Get messages (paginated) |
+| POST | /api/conversations/:id/messages | Send message (REST fallback) |
+| PUT | /api/messages/:id | Edit message |
+| DELETE | /api/messages/:id | Delete message |
+| POST | /api/messages/:id/read | Mark as read |
+| PUT | /api/conversations/:id/mute | Mute/unmute |
+
+---
+
+## 6. Socket.io Events
+
+### Client → Server
+| Event | Payload | Description |
+|-------|---------|-------------|
+| join | { userId } | Join user's room |
+| sendMessage | { conversationId, content, type, replyTo? } | Send message |
+| typing | { conversationId } | Started typing |
+| stopTyping | { conversationId } | Stopped typing |
+| messageRead | { messageId, conversationId } | Mark as read |
+| online | { userId } | User online |
+| offline | { userId } | User offline |
+
+### Server → Client
+| Event | Payload | Description |
+|-------|---------|-------------|
+| newMessage | { message, conversation } | New message received |
+| messageDelivered | { messageId } | Message delivered |
+| messageRead | { messageId, readBy } | Message was read |
+| messageEdited | { message } | Message was edited |
+| messageDeleted | { messageId, deletedForEveryone } | Message deleted |
+| userTyping | { userId, conversationId } | User is typing |
+| userStoppedTyping | { userId, conversationId } | Stopped typing |
+| userOnline | { userId } | Friend came online |
+| userOffline | { userId, lastSeen } | Friend went offline |
+| friendRequest | { request, fromUser } | New friend request |
+| friendRequestAccepted | { user } | Request accepted |
+
+---
+
+## 7. Project Structure
+
+### Backend
+```
+server/
+├── src/
+│   ├── config/
+│   │   ├── database.js
+│   │   ├── firebase.js
+│   │   └── cloudinary.js
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   ├── errorHandler.js
+│   │   └── upload.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── FriendRequest.js
+│   │   ├── Conversation.js
+│   │   └── Message.js
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── user.routes.js
+│   │   ├── friend.routes.js
+│   │   └── chat.routes.js
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── user.controller.js
+│   │   ├── friend.controller.js
+│   │   └── chat.controller.js
+│   ├── services/
+│   │   ├── notification.service.js
+│   │   └── cloudinary.service.js
+│   ├── socket/
+│   │   ├── index.js
+│   │   └── handlers.js
+│   └── app.js
+├── .env
+└── package.json
+```
+
+### Frontend
+```
+client/
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   ├── chat/
+│   │   ├── friends/
+│   │   ├── profile/
+│   │   ├── common/
+│   │   └── layout/
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Chat.jsx
+│   │   ├── Friends.jsx
+│   │   └── Profile.jsx
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   ├── SocketContext.jsx
+│   │   └── ChatContext.jsx
+│   ├── hooks/
+│   ├── services/
+│   └── utils/
+├── .env
+└── package.json
+```
+
+---
+
+## 8. User Workflows
+
+### 8.1 Registration Flow
+```
+1. User clicks "Sign Up"
+2. Enters email, password, username, display name
+3. Frontend validates input
+4. Backend creates Firebase Auth user
+5. Backend creates MongoDB user document
+6. Firebase sends verification email
+7. User clicks email link
+8. Redirected to login with success message
+```
+
+### 8.2 Friend Request Flow
+```
+1. User A searches for User B
+2. User A clicks "Add Friend"
+3. Backend creates FriendRequest (status: pending)
+4. Socket emits 'friendRequest' to User B
+5. User B gets in-app + push notification
+6. User B clicks "Accept"
+7. Backend updates status to 'accepted'
+8. Backend adds each to other's friends array
+9. Socket emits 'friendRequestAccepted' to User A
+10. Both can now chat
+```
+
+### 8.3 Messaging Flow
+```
+1. User A opens chat with User B
+2. Frontend loads conversation + messages (paginated)
+3. User A types → 'typing' event emitted
+4. User B sees typing indicator
+5. User A sends → 'sendMessage' event
+6. Backend saves message
+7. Backend emits 'newMessage' to User B
+8. Backend emits 'messageDelivered' to User A
+9. User B views → 'messageRead' event
+10. Backend emits 'messageRead' to User A
+11. If User B offline → send push notification
+```
+
+### 8.4 Offline Message Handling
+```
+1. User A sends while User B is offline
+2. Backend saves message (status: sent)
+3. Backend sends push notification
+4. User B comes online, connects to Socket
+5. Frontend fetches unread messages
+6. Backend updates status to 'delivered'
+7. Socket notifies User A
+```
+
+---
+
+## 9. Implementation Phases (10 Weeks)
+
+### Phase 1: Foundation (Week 1-2)
+- [ ] Set up repositories
+- [ ] Configure MongoDB Atlas
+- [ ] Set up Firebase (Auth + FCM)
+- [ ] Create database schemas + indexes
+- [ ] Implement auth (register, login, logout)
+- [ ] Build basic frontend layout + routing
+
+### Phase 2: User & Friends (Week 3-4)
+- [ ] Profile CRUD operations
+- [ ] Profile picture upload (Cloudinary)
+- [ ] User search
+- [ ] Friend request system
+- [ ] Friends list + management
+- [ ] Block/unblock
+
+### Phase 3: Real-time Chat (Week 5-6)
+- [ ] Socket.io backend integration
+- [ ] Real-time messaging
+- [ ] Typing indicators
+- [ ] Message status (sent/delivered/read)
+- [ ] Online/offline status
+- [ ] Chat history + pagination
+
+### Phase 4: Enhanced Features (Week 7-8)
+- [ ] Image sharing
+- [ ] Emoji picker
+- [ ] Reply to messages
+- [ ] Edit + delete messages
+- [ ] Message search
+- [ ] Push notifications
+
+### Phase 5: Polish & Deploy (Week 9-10)
+- [ ] UI/UX polish + responsiveness
+- [ ] Error handling + edge cases
+- [ ] Performance optimization
+- [ ] Deploy backend to Render
+- [ ] Deploy frontend to Vercel
+- [ ] Set up cron job (keep server awake)
+- [ ] Test with friends
+
+---
+
+## 10. Error Handling
+
+### Frontend Errors
+| Error | User Sees | Recovery |
+|-------|-----------|----------|
+| Network offline | Offline banner | Queue messages, sync on reconnect |
+| Socket disconnected | "Reconnecting..." toast | Auto-reconnect with backoff |
+| Auth token expired | Nothing (transparent) | Auto-refresh, retry |
+| API error (4xx) | Specific error message | Guide user to fix |
+| Server error (5xx) | "Something went wrong" | Retry button |
+| Message send failed | Retry icon on message | Tap to retry |
+
+### Backend Error Codes
+- 400: Validation error (field-specific messages)
+- 401: Authentication error
+- 403: Authorization error (e.g., blocked)
+- 404: Not found
+- 429: Rate limited (retry-after header)
+- 500: Internal error (log details server-side)
+
+---
+
+## 11. Security
+
+### Authentication
+- Passwords hashed by Firebase (never in MongoDB)
+- JWT signed with secure secret
+- HTTPS only
+- Refresh token rotation
+
+### API
+- CORS for specific frontend domain only
+- Rate limit: 100 requests/minute/user
+- Input validation + sanitization
+- MongoDB injection prevention
+- XSS prevention
+
+### Socket
+- Connections authenticated via JWT
+- Users can only join their own room
+- Message recipients validated (must be friends)
+
+### Data Privacy
+- Messages auto-delete after 30 days
+- User can delete account + all data
+- Blocked users can't access blocker's data
+
+---
+
+## 12. Testing Checklist
+
+### Functional Tests
+- [ ] Register with valid email
+- [ ] Can't register with duplicate email/username
+- [ ] Password reset email received
+- [ ] Friend request appears in pending list
+- [ ] Accepting adds both as friends
+- [ ] Messages appear instantly (online)
+- [ ] Offline messages delivered on reconnect
+- [ ] Typing indicator shows/hides correctly
+- [ ] Read receipts update correctly
+- [ ] Blocked user can't send messages
+
+### Edge Cases
+- [ ] Rapid message sending doesn't duplicate
+- [ ] Network disconnect/reconnect graceful
+- [ ] Multiple browser tabs sync correctly
+- [ ] Large message (1000+ chars) works
+- [ ] Special characters display correctly
+- [ ] Simultaneous friend requests handled
+
+---
+
+## 13. Environment Variables
+
+### Backend (.env)
+```
+PORT=5000
+MONGODB_URI=mongodb+srv://...
+FIREBASE_PROJECT_ID=...
+FIREBASE_PRIVATE_KEY=...
+FIREBASE_CLIENT_EMAIL=...
+JWT_SECRET=your-secret-key
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+CLIENT_URL=https://your-app.vercel.app
+```
+
+### Frontend (.env)
+```
+VITE_API_URL=https://your-api.onrender.com
+VITE_SOCKET_URL=https://your-api.onrender.com
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+---
+
+## Quick Start
+
+1. Create free accounts: MongoDB Atlas, Firebase, Cloudinary, Render, Vercel
+2. Set up free-tier resources
+3. Initialize project structure
+4. Follow implementation phases
+5. Test with checklist
+6. Deploy and share with friends!
+
+---
+
+This covers everything you need. Want me to start coding any specific part?
