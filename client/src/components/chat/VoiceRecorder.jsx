@@ -143,7 +143,7 @@ const VoiceRecorder = ({ onSend, onCancel }) => {
             disabled={isUploading}
             className="flex-1 font-black uppercase py-2 transition-all hover:scale-105"
             style={{
-              backgroundColor: isUploading ? '#666' : '#00ff00',
+              backgroundColor: isUploading ? '#666' : '#00D9FF',
               color: 'black',
               border: '3px solid black',
               borderRadius: '8px',
@@ -219,7 +219,7 @@ const VoiceRecorder = ({ onSend, onCancel }) => {
             onClick={isPaused ? resumeRecording : pauseRecording}
             className="flex-1 font-black uppercase py-2 text-sm transition-all hover:scale-105"
             style={{
-              backgroundColor: '#ffff00',
+              backgroundColor: '#FFD700',
               color: 'black',
               border: '2px solid black',
               borderRadius: '8px',
@@ -232,7 +232,7 @@ const VoiceRecorder = ({ onSend, onCancel }) => {
             onClick={handleStop} 
             className="flex-1 font-black uppercase py-2 text-sm transition-all hover:scale-105"
             style={{
-              backgroundColor: '#00ff00',
+              backgroundColor: '#FF0000',
               color: 'black',
               border: '2px solid black',
               borderRadius: '8px',

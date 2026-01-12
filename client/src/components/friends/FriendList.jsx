@@ -109,7 +109,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
               borderRadius: '8px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#ffff00';
+              e.currentTarget.style.backgroundColor = '#FFD700';
               e.currentTarget.style.transform = 'rotate(0.5deg) scale(1.02)';
             }}
             onMouseLeave={(e) => {
@@ -122,7 +122,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
                 <div 
                   className="h-12 w-12 rounded-full flex items-center justify-center text-white font-black overflow-hidden"
                   style={{
-                    backgroundColor: '#ff0000',
+                    backgroundColor: '#9B59B6',
                     border: '3px solid black',
                     boxShadow: '2px 2px 0 black'
                   }}
@@ -145,7 +145,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
                 <p className="font-black uppercase">{friend.displayName}</p>
                 <p 
                   className="text-sm font-bold"
-                  style={{ color: friend.isOnline ? '#00ff00' : '#666' }}
+                  style={{ color: friend.isOnline ? '#00D9FF' : '#666' }}
                 >
                   {friend.isOnline ? '⚡ ONLINE' : 'OFFLINE'}
                 </p>
@@ -157,7 +157,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
                 onClick={() => handleStartChat(friend)}
                 className="p-2 transition-all hover:scale-110"
                 style={{
-                  backgroundColor: '#00ffff',
+                  backgroundColor: '#00D9FF',
                   border: '2px solid black',
                   borderRadius: '8px',
                   boxShadow: '2px 2px 0 black'
@@ -202,7 +202,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
                       }}
                       className="w-full text-left px-4 py-2 text-sm font-bold transition-all"
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#ffff00';
+                        e.currentTarget.style.backgroundColor = '#FFD700';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
@@ -218,7 +218,7 @@ const FriendList = ({ friends, loading, onUpdate }) => {
                       className="w-full text-left px-4 py-2 text-sm font-bold transition-all"
                       style={{ color: '#ff0000' }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#ffff00';
+                        e.currentTarget.style.backgroundColor = '#FFD700';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent';

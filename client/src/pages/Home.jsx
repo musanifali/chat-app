@@ -82,7 +82,7 @@ const Home = () => {
                   <div 
                     className="absolute -top-2 -right-2 px-2 sm:px-3 py-1 text-xs sm:text-sm font-black uppercase"
                     style={{
-                      backgroundColor: '#ffff00',
+                      backgroundColor: '#FFD700',
                       border: '2px solid black',
                       borderRadius: '999px',
                       transform: 'rotate(12deg)'

@@ -104,7 +104,7 @@ const SearchUsers = ({ onFriendAdded }) => {
                 <div 
                   className="h-10 w-10 rounded-full flex items-center justify-center text-white font-black overflow-hidden"
                   style={{
-                    backgroundColor: '#ff00ff',
+                    backgroundColor: '#9B59B6',
                     border: '2px solid black',
                     boxShadow: '2px 2px 0 black'
                   }}
@@ -125,8 +125,8 @@ const SearchUsers = ({ onFriendAdded }) => {
                 onClick={() => handleSendRequest(user._id)}
                 className="text-sm px-4 py-2 font-black uppercase transition-all hover:scale-105"
                 style={{
-                  backgroundColor: '#0066ff',
-                  color: 'white',
+                  backgroundColor: '#00D9FF',
+                  color: 'black',
                   border: '3px solid black',
                   borderRadius: '8px',
                   boxShadow: '3px 3px 0 black',

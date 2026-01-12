@@ -76,7 +76,7 @@ const AudioMessage = ({ audioUrl, duration, isOwn }) => {
       style={{
         minWidth: '250px',
         maxWidth: '300px',
-        backgroundColor: isOwn ? '#00ffff' : 'white',
+        backgroundColor: isOwn ? '#FFD700' : 'white',
         border: '2px solid black',
         borderRadius: '12px',
         boxShadow: '2px 2px 0 black'
@@ -89,7 +89,7 @@ const AudioMessage = ({ audioUrl, duration, isOwn }) => {
         onClick={togglePlayPause}
         className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
         style={{
-          backgroundColor: isOwn ? '#ffff00' : '#ff0000',
+          backgroundColor: isOwn ? '#FFD700' : '#ff0000',
           border: '2px solid black',
           boxShadow: '2px 2px 0 black'
         }}
@@ -132,7 +132,7 @@ const AudioMessage = ({ audioUrl, duration, isOwn }) => {
             onClick={cyclePlaybackRate}
             className="text-xs font-black px-2 py-0.5 rounded transition-all hover:scale-105"
             style={{
-              backgroundColor: isOwn ? '#ffff00' : '#fff5e6',
+              backgroundColor: isOwn ? '#FFD700' : '#fff5e6',
               border: '2px solid black',
               boxShadow: '1px 1px 0 black'
             }}

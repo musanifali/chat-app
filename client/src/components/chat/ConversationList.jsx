@@ -26,7 +26,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
           <div 
             className="inline-block p-6 rounded-full"
             style={{
-              backgroundColor: '#ffff00',
+              backgroundColor: '#FFD700',
               border: '4px solid black',
               boxShadow: '6px 6px 0 black',
               animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
@@ -74,7 +74,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
               <div 
                 className="absolute -top-3 -right-3 w-12 h-12 flex items-center justify-center rounded-full"
                 style={{
-                  backgroundColor: '#ffff00',
+                  backgroundColor: '#FFD700',
                   border: '3px solid black',
                   boxShadow: '3px 3px 0 black',
                   transform: 'rotate(15deg)'
@@ -102,7 +102,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
             <div 
               className="mt-4 p-3 rounded-lg"
               style={{
-                backgroundColor: '#ffff00',
+                backgroundColor: '#FFD700',
                 border: '3px solid black',
                 boxShadow: '3px 3px 0 black',
                 transform: 'rotate(1deg)'
@@ -131,14 +131,11 @@ const ConversationList = ({ conversations, loading, onClose }) => {
       <div 
         className="p-4 relative overflow-hidden flex-shrink-0"
         style={{
-          background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+          background: '#FFD700',
           borderBottom: '4px solid black',
           boxShadow: '0 4px 0 black',
-          backgroundImage: `
-            radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px),
-            linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.05) 48%, rgba(0,0,0,0.05) 52%, transparent 52%)
-          `,
-          backgroundSize: '4px 4px, 10px 10px'
+          backgroundImage: 'radial-gradient(circle, rgba(255,0,0,0.15) 2px, transparent 2px)',
+          backgroundSize: '12px 12px'
         }}
       >
         <div className="relative z-10">
@@ -185,7 +182,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
               className="cursor-pointer transition-all group"
               style={{
                 background: isActive 
-                  ? 'linear-gradient(135deg, #e879f9 0%, #f472b6 100%)' 
+                  ? '#00D9FF' 
                   : 'white',
                 border: '3px solid black',
                 boxShadow: isActive ? '4px 4px 0 black' : '2px 2px 0 black',
@@ -217,7 +214,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
                     style={{
                       border: '3px solid black',
                       boxShadow: '3px 3px 0 black',
-                      background: otherUser?.avatarUrl ? 'transparent' : '#ff00ff'
+                      background: otherUser?.avatarUrl ? 'transparent' : '#9B59B6'
                     }}
                   >
                     {otherUser?.avatarUrl ? (
@@ -232,7 +229,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
                     <div 
                       className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
                       style={{
-                        backgroundColor: '#00ff00',
+                        backgroundColor: '#00D9FF',
                         border: '2px solid black',
                         boxShadow: '0 0 0 2px white, 2px 2px 0 2px black'
                       }}

@@ -26,11 +26,11 @@ const Navbar = () => {
   return (
     <nav 
       style={{
-        backgroundColor: '#ffff00',
+        backgroundColor: '#FFD700',
         borderBottom: '4px solid black',
         boxShadow: '0 4px 0 black',
-        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
-        backgroundSize: '4px 4px'
+        backgroundImage: 'radial-gradient(circle, rgba(255,0,0,0.15) 2px, transparent 2px)',
+        backgroundSize: '12px 12px'
       }}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
@@ -55,7 +55,7 @@ const Navbar = () => {
                 to="/"
                 className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-black uppercase transition-all"
                 style={{
-                  backgroundColor: isActive('/') ? '#00ffff' : 'white',
+                  backgroundColor: isActive('/') ? '#00D9FF' : 'white',
                   color: 'black',
                   border: '2px solid black',
                   borderRadius: '8px',
@@ -64,7 +64,7 @@ const Navbar = () => {
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive('/')) {
-                    e.currentTarget.style.backgroundColor = '#ffff00';
+                    e.currentTarget.style.backgroundColor = '#7FDBFF';
                     e.currentTarget.style.transform = 'rotate(0.5deg) scale(1.05)';
                   }
                 }}
@@ -82,7 +82,7 @@ const Navbar = () => {
                 to="/friends"
                 className="px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-black uppercase transition-all"
                 style={{
-                  backgroundColor: isActive('/friends') ? '#00ffff' : 'white',
+                  backgroundColor: isActive('/friends') ? '#00D9FF' : 'white',
                   color: 'black',
                   border: '2px solid black',
                   borderRadius: '8px',
@@ -91,7 +91,7 @@ const Navbar = () => {
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive('/friends')) {
-                    e.currentTarget.style.backgroundColor = '#ffff00';
+                    e.currentTarget.style.backgroundColor = '#7FDBFF';
                     e.currentTarget.style.transform = 'rotate(0.5deg) scale(1.05)';
                   }
                 }}
@@ -118,7 +118,7 @@ const Navbar = () => {
                 borderRadius: '8px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffff00';
+                e.currentTarget.style.backgroundColor = '#FFD700';
                 e.currentTarget.style.transform = 'scale(1.05)';
               }}
               onMouseLeave={(e) => {
@@ -129,7 +129,7 @@ const Navbar = () => {
               <div 
                 className="h-6 w-6 sm:h-8 sm:w-8 rounded-full flex items-center justify-center text-white font-black overflow-hidden flex-shrink-0"
                 style={{
-                  backgroundColor: '#ff0000',
+                  backgroundColor: '#9B59B6',
                   border: '2px solid black',
                   boxShadow: '2px 2px 0 black'
                 }}

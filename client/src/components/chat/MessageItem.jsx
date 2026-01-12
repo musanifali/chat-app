@@ -16,7 +16,7 @@ const MessageItem = ({ message, isOwn }) => {
         <div
           className="px-4 py-3 relative"
           style={{
-            background: isOwn ? '#e879f9' : 'white',
+            background: isOwn ? '#FFD700' : 'white',
             color: 'black',
             border: '3px solid black',
             borderRadius: '20px',

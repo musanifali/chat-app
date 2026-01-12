@@ -62,7 +62,7 @@ const FriendRequests = ({ requests, onUpdate }) => {
               <div 
                 className="h-12 w-12 rounded-full flex items-center justify-center text-white font-black overflow-hidden"
                 style={{
-                  backgroundColor: '#0066ff',
+                  backgroundColor: '#9B59B6',
                   border: '3px solid black',
                   boxShadow: '2px 2px 0 black'
                 }}
@@ -84,7 +84,7 @@ const FriendRequests = ({ requests, onUpdate }) => {
                 onClick={() => handleRespond(request._id, 'accept')}
                 className="flex-1 py-2 text-sm font-black uppercase transition-all hover:scale-105"
                 style={{
-                  backgroundColor: '#00ff00',
+                  backgroundColor: '#00D9FF',
                   color: 'black',
                   border: '3px solid black',
                   borderRadius: '8px',

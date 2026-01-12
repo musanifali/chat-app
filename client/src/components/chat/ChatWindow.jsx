@@ -119,11 +119,11 @@ const ChatWindow = ({ onToggleSidebar }) => {
       <div 
         className="px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-shrink-0 z-10"
         style={{
-          background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+          background: '#FFD700',
           borderBottom: '4px solid black',
           boxShadow: '0 4px 0 black',
-          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
-          backgroundSize: '4px 4px'
+          backgroundImage: 'radial-gradient(circle, rgba(255,0,0,0.15) 2px, transparent 2px)',
+          backgroundSize: '12px 12px'
         }}
       >
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -148,9 +148,10 @@ const ChatWindow = ({ onToggleSidebar }) => {
           <div 
             className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center animate-comic-shake"
             style={{
-              backgroundColor: '#ffff00',
+              backgroundColor: '#9B59B6',
               border: '3px solid black',
-              boxShadow: '2px 2px 0 black'
+              boxShadow: '2px 2px 0 black',
+              color: 'white'
             }}
           >
             {otherUser?.avatarUrl ? (
@@ -175,8 +176,8 @@ const ChatWindow = ({ onToggleSidebar }) => {
         <div 
           className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-black uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full flex-shrink-0"
           style={{
-            backgroundColor: isOnline ? '#00ff00' : '#666',
-            color: 'white',
+            backgroundColor: isOnline ? '#00D9FF' : '#666',
+            color: 'black',
             border: '2px solid black',
             boxShadow: '2px 2px 0 black'
           }}
@@ -249,7 +250,7 @@ const ChatWindow = ({ onToggleSidebar }) => {
           <div 
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full animate-comic-pop"
             style={{
-              background: 'linear-gradient(135deg, #e879f9 0%, #f472b6 100%)',
+              background: '#00D9FF',
               border: '2px solid black',
               boxShadow: '2px 2px 0 black',
               transform: 'rotate(-0.5deg)'
