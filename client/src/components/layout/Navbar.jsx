@@ -25,6 +25,7 @@ const Navbar = () => {
 
   return (
     <nav 
+      className="overflow-hidden"
       style={{
         backgroundColor: '#FFD700',
         borderBottom: '4px solid black',
@@ -33,7 +34,7 @@ const Navbar = () => {
         backgroundSize: '12px 12px'
       }}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 overflow-hidden">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center gap-3 sm:gap-6">
             <Link 
