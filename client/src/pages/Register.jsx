@@ -217,20 +217,22 @@ const Register = () => {
               />
             </div>
 
-            <Button
+            <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 font-black uppercase text-lg bg-comic-blue text-white border-[4px] border-black rounded-[15px] transition-all hover:scale-105 active:scale-95 disabled:opacity-50 touch-manipulation"
+              className="w-full py-4 font-black uppercase text-lg bg-comic-blue text-white border-[4px] border-black rounded-[15px] transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               style={{
                 boxShadow: loading ? '2px 2px 0 black' : '4px 4px 0 black',
                 textShadow: '2px 2px 0 black',
                 transform: loading ? 'scale(0.98)' : 'scale(1)',
+                touchAction: 'manipulation',
                 WebkitTapHighlightColor: 'transparent',
-                cursor: loading ? 'not-allowed' : 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                border: '4px solid black'
               }}
             >
-              {loading ? '⏳ CREATING ACCOUNT...' : '🚀 SIGN UP! 🚀'}
-            </Button>
+              {loading ? '\u23f3 CREATING ACCOUNT...' : '\ud83d\ude80 SIGN UP! \ud83d\ude80'}
+            </button>
           </form>
 
           {/* Sign In Link */}
