@@ -112,7 +112,7 @@ const MessageInput = ({ onSend, conversationId }) => {
     <div 
       className="px-2 sm:px-4 md:px-6 py-3 sm:py-3 md:py-4 safe-bottom"
       style={{
-        backgroundColor: '#FFD700',
+        backgroundColor: '#fff5e6',
         borderTop: '4px solid black',
         boxShadow: '0 -4px 0 black',
         position: 'sticky',
