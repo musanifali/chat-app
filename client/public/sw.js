@@ -32,6 +32,14 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
+  // Skip caching for:
+  // 1. API requests (let them go directly to server)
+  // 2. Non-GET requests (POST, PUT, DELETE, etc.)
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET' || url.pathname.startsWith('/api')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

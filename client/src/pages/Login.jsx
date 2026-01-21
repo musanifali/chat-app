@@ -26,6 +26,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🔥 Form submitted!', { email: formData.email });
     setLoading(true);
 
     try {
