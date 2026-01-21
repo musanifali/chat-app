@@ -68,13 +68,22 @@ const ChatWindow = ({ onToggleSidebar }) => {
   }, [activeConversation?._id, socket]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Smooth scroll for new messages, instant scroll on first load
+    if (messages[activeConversation?._id]?.length) {
+      scrollToBottom();
+    }
   }, [messages[activeConversation?._id]]);
 
   const fetchMessages = async () => {
     try {
       const response = await api.get(`/chat/conversations/${activeConversation._id}/messages`);
       setMessages(activeConversation._id, response.data.messages);
+      // Scroll to bottom after messages are loaded
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+        }
+      }, 100);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error('Failed to load messages');

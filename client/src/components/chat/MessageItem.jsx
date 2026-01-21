@@ -96,7 +96,7 @@ const MessageItem = ({ message, isOwn }) => {
 
   return (
     <div 
-      className={`flex mb-4 ${isOwn ? 'justify-end' : 'justify-start'} animate-comic-pop`}
+      className={`flex mb-3 sm:mb-4 px-1 ${isOwn ? 'justify-end' : 'justify-start'} animate-comic-pop`}
       ref={messageRef}
       onContextMenu={handleContextMenu}
     >
