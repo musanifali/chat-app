@@ -5,6 +5,7 @@ import api from '../services/api';
 import ConversationList from '../components/chat/ConversationList';
 import ChatWindow from '../components/chat/ChatWindow';
 import OfflineIndicator from '../components/common/OfflineIndicator';
+import InstallPWA from '../components/common/InstallPWA';
 import toast from 'react-hot-toast';
 
 const Home = () => {
@@ -120,6 +121,9 @@ const Home = () => {
 
       {/* Offline Indicator */}
       <OfflineIndicator />
+      
+      {/* PWA Install Banner */}
+      <InstallPWA />
     </div>
   );
 };
