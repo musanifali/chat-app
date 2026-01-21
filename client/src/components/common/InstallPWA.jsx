@@ -10,14 +10,37 @@ const InstallPWA = () => {
       return; // Already installed
     }
 
+    // Check if dismissed recently
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    if (dismissed) {
+      const dismissedTime = parseInt(dismissed);
+      const daysSince = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
+      if (daysSince < 7) {
+        return;
+      }
+    }
+
     // Listen for install prompt
     const handleBeforeInstallPrompt = (e) => {
+      console.log('📱 PWA: Install prompt received');
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // For testing: show banner after 3 seconds if on mobile Chrome
+    const isMobileChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+    if (isMobileChrome && !dismissed) {
+      setTimeout(() => {
+        // If no prompt received, still show banner for manual installation instructions
+        if (!deferredPrompt) {
+          console.log('📱 PWA: Showing banner for mobile Chrome');
+          setShowInstallBanner(true);
+        }
+      }, 3000);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -26,6 +49,8 @@ const InstallPWA = () => {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
+      // No native prompt available, show manual instructions
+      alert('To install:\n1. Tap the menu (⋮)\n2. Select "Add to Home screen" or "Install app"');
       return;
     }
 
@@ -51,18 +76,6 @@ const InstallPWA = () => {
     // Don't show again for 7 days
     localStorage.setItem('pwa-install-dismissed', Date.now());
   };
-
-  // Check if dismissed recently
-  useEffect(() => {
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-      const dismissedTime = parseInt(dismissed);
-      const daysSince = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
-      if (daysSince < 7) {
-        setShowInstallBanner(false);
-      }
-    }
-  }, []);
 
   if (!showInstallBanner) {
     return null;

@@ -110,14 +110,15 @@ const MessageInput = ({ onSend, conversationId }) => {
 
   return (
     <div 
-      className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 safe-bottom"
+      className="px-2 sm:px-4 md:px-6 py-3 sm:py-3 md:py-4 safe-bottom"
       style={{
-        backgroundColor: '#fff5e6',
+        backgroundColor: '#FFD700',
         borderTop: '4px solid black',
-        boxShadow: '0 -4px 0 #FFD700',
-        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',
-        backgroundSize: '8px 8px',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))'
+        boxShadow: '0 -4px 0 black',
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 10,
+        paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))'
       }}
     >
       <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">
@@ -198,49 +199,32 @@ const MessageInput = ({ onSend, conversationId }) => {
           type="text"
           value={message}
           onChange={handleTyping}
-          placeholder="💬 Type..."
-          className="flex-1 min-w-0 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base focus:outline-none font-bold"
+          placeholder="💬 Type a message..."
+          className="flex-1 min-w-0 px-3 sm:px-3 md:px-4 py-3 sm:py-2.5 md:py-3 text-base sm:text-base font-bold"
           style={{
             backgroundColor: 'white',
-            border: '3px solid black',
-            boxShadow: '3px 3px 0 black',
+            border: '4px solid black',
+            boxShadow: '4px 4px 0 black',
             borderRadius: '15px',
-            transform: 'rotate(-0.5deg)'
-          }}
-          onFocus={(e) => { 
-            e.currentTarget.style.borderColor = '#ff0000'; 
-            e.currentTarget.style.transform = 'rotate(0deg) scale(1.02)';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = 'black';
-            e.currentTarget.style.transform = 'rotate(-0.5deg) scale(1)';
+            minHeight: '44px'
           }}
         />
 
         <button
           type="submit"
           disabled={!message.trim()}
-          className="px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 text-xs sm:text-sm md:text-base disabled:cursor-not-allowed disabled:opacity-50 transition-all font-black uppercase flex-shrink-0"
+          className="px-4 sm:px-4 md:px-6 py-3 sm:py-2.5 text-sm sm:text-sm md:text-base disabled:cursor-not-allowed disabled:opacity-50 transition-all font-black uppercase flex-shrink-0"
           style={{
             backgroundColor: message.trim() ? '#ff0000' : '#9ca3af',
             color: 'white',
-            border: '3px solid black',
-            boxShadow: '3px 3px 0 black',
+            border: '4px solid black',
+            boxShadow: '4px 4px 0 black',
             borderRadius: '15px',
-            transform: 'rotate(1deg)',
-            textShadow: '2px 2px 0 black'
-          }}
-          onMouseEnter={(e) => { 
-            if (message.trim()) {
-              e.currentTarget.style.transform = 'rotate(1deg) scale(1.05)';
-            }
-          }}
-          onMouseLeave={(e) => { 
-            e.currentTarget.style.transform = 'rotate(1deg) scale(1)';
+            textShadow: '2px 2px 0 black',
+            minHeight: '44px'
           }}
         >
-          <span className="hidden sm:inline">⚡ SEND!</span>
-          <span className="sm:hidden">⚡</span>
+          <span>SEND</span>
         </button>
       </form>
 
