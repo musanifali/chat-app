@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import usePinStore from '../store/pinStore';
 import NotificationSettings from '../components/settings/NotificationSettings';
+import PinSetup from '../components/pin/PinSetup';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { user, updateUser } = useAuthStore();
+  const { isPinEnabled, disablePin } = usePinStore();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPinSetup, setShowPinSetup] = useState(false);
   const [formData, setFormData] = useState({
     displayName: user?.displayName || '',
     bio: user?.bio || '',
@@ -148,7 +152,52 @@ const Profile = () => {
                 Edit Profile
               </button>
             </div>
-          )}
+
+        {/* PIN Lock Settings */}
+        <div className="card mt-6">
+          <h3 className="text-xl font-bold mb-4">🔒 Privacy & Security</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-semibold">PIN Lock</h4>
+              <p className="text-sm text-gray-600">
+                Protect your chats with a 4-digit PIN
+              </p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <span className={`text-sm font-medium ${isPinEnabled ? 'text-green-600' : 'text-gray-500'}`}>
+                {isPinEnabled ? '✓ Enabled' : 'Disabled'}
+              </span>
+              {isPinEnabled ? (
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to disable PIN lock?')) {
+                      disablePin();
+                      toast.success('PIN lock disabled');
+                    }
+                  }}
+                  className="btn-secondary"
+                >
+                  Disable
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowPinSetup(true)}
+                  className="btn-primary"
+                >
+                  Enable
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PIN Setup Modal */}
+      {showPinSetup && (
+        <div className="fixed inset-0 z-50">
+          <PinSetup onComplete={() => setShowPinSetup(false)} />
+        </div>
+      )}
         </div>
       </div>
 

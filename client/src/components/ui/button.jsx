@@ -34,13 +34,18 @@ const Button = React.forwardRef(
         className={cn(
           "inline-flex items-center justify-center font-bangers uppercase tracking-widest transition-all",
           "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-comic-yellow",
-          "disabled:pointer-events-none disabled:opacity-50",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
           "active:scale-95 active:shadow-comic-sm hover:animate-comic-pop",
+          "touch-manipulation",
           variants[variant],
           sizes[size],
           className
         )}
         ref={ref}
+        style={{
+          WebkitTapHighlightColor: 'transparent',
+          ...props.style
+        }}
         {...props}
       />
     )

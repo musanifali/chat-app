@@ -138,13 +138,19 @@ const Login = () => {
             <Button
               type="submit"
               disabled={loading}
+              onClick={(e) => {
+                if (!loading) {
+                  handleSubmit(e);
+                }
+              }}
               className="w-full py-4 font-black uppercase text-lg bg-comic-red text-white border-[4px] border-black rounded-[15px] transition-all hover:scale-105 active:scale-95 disabled:opacity-50 touch-manipulation"
               style={{
                 boxShadow: loading ? '2px 2px 0 black' : '4px 4px 0 black',
                 textShadow: '2px 2px 0 black',
                 transform: loading ? 'scale(0.98)' : 'scale(1)',
                 WebkitTapHighlightColor: 'transparent',
-                cursor: loading ? 'not-allowed' : 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                pointerEvents: loading ? 'none' : 'auto'
               }}
             >
               {loading ? '⏳ LOGGING IN...' : '⚡ LET\'S GO! ⚡'}

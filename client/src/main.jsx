@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { SocketProvider } from './context/SocketContext';
 import PrivateRoute from './components/common/PrivateRoute';
 import Navbar from './components/layout/Navbar';
+import PinLock from './components/pin/PinLock';
 import { useAuthStore } from './store/authStore';
+import usePinStore from './store/pinStore';
 
 // Pages
 import Login from './pages/Login';
@@ -18,10 +20,43 @@ import './index.css';
 
 const Layout = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isLocked, isPinEnabled, lockApp, unlockApp } = usePinStore();
+  const [showLock, setShowLock] = useState(false);
+
+  // Lock app when it goes to background (mobile)
+  useEffect(() => {
+    if (!isAuthenticated || !isPinEnabled) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // App going to background - lock it
+        lockApp();
+      }
+    };
+
+    // Also lock on page unload/reload
+    const handleBeforeUnload = () => {
+      lockApp();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isAuthenticated, isPinEnabled, lockApp]);
+
+  // Show lock screen when locked
+  useEffect(() => {
+    setShowLock(isAuthenticated && isPinEnabled && isLocked);
+  }, [isAuthenticated, isPinEnabled, isLocked]);
 
   return (
     <>
       {isAuthenticated && <Navbar />}
+      {showLock && <PinLock onUnlock={unlockApp} />}
       {children}
       <Toaster
         position="top-right"
