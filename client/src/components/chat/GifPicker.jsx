@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const GIPHY_API_KEY = 'YOUR_GIPHY_API_KEY'; // Will use demo key for now
 const GIPHY_DEMO_KEY = 'sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh'; // Public demo key
@@ -7,20 +7,66 @@ const GifPicker = ({ onSelect, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [gifs, setGifs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const scrollRef = useRef(null);
+  const observerRef = useRef(null);
+  const lastGifRef = useRef(null);
 
   // Load trending GIFs on mount
   useEffect(() => {
-    fetchTrendingGifs();
+    fetchTrendingGifs(true);
   }, []);
 
-  const fetchTrendingGifs = async () => {
+  // Infinite scroll observer
+  useEffect(() => {
+    if (loading || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          if (searchQuery.trim()) {
+            searchGifs(searchQuery, false);
+          } else {
+            fetchTrendingGifs(false);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (lastGifRef.current) {
+      observer.observe(lastGifRef.current);
+    }
+
+    observerRef.current = observer;
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [loading, hasMore, searchQuery, offset]);
+
+  const fetchTrendingGifs = async (reset = false) => {
     setLoading(true);
+    const currentOffset = reset ? 0 : offset;
+    
     try {
       const response = await fetch(
-        `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_DEMO_KEY}&limit=20&rating=g`
+        `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_DEMO_KEY}&limit=50&offset=${currentOffset}&rating=g`
       );
       const data = await response.json();
-      setGifs(data.data);
+      
+      if (reset) {
+        setGifs(data.data);
+        setOffset(50);
+      } else {
+        setGifs(prev => [...prev, ...data.data]);
+        setOffset(prev => prev + 50);
+      }
+      
+      setHasMore(data.pagination.total_count > currentOffset + data.data.length);
     } catch (error) {
       console.error('Error fetching trending GIFs:', error);
     } finally {
@@ -28,19 +74,30 @@ const GifPicker = ({ onSelect, onClose }) => {
     }
   };
 
-  const searchGifs = async (query) => {
+  const searchGifs = async (query, reset = false) => {
     if (!query.trim()) {
-      fetchTrendingGifs();
+      fetchTrendingGifs(true);
       return;
     }
 
     setLoading(true);
+    const currentOffset = reset ? 0 : offset;
+    
     try {
       const response = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_DEMO_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`
+        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_DEMO_KEY}&q=${encodeURIComponent(query)}&limit=50&offset=${currentOffset}&rating=g`
       );
       const data = await response.json();
-      setGifs(data.data);
+      
+      if (reset) {
+        setGifs(data.data);
+        setOffset(50);
+      } else {
+        setGifs(prev => [...prev, ...data.data]);
+        setOffset(prev => prev + 50);
+      }
+      
+      setHasMore(data.pagination.total_count > currentOffset + data.data.length);
     } catch (error) {
       console.error('Error searching GIFs:', error);
     } finally {
@@ -51,10 +108,12 @@ const GifPicker = ({ onSelect, onClose }) => {
   const handleSearch = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
+    setOffset(0);
+    setHasMore(true);
     
     // Debounce search
     const timeoutId = setTimeout(() => {
-      searchGifs(query);
+      searchGifs(query, true);
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -144,9 +203,10 @@ const GifPicker = ({ onSelect, onClose }) => {
                 </p>
               </div>
             ) : (
-              gifs.map((gif) => (
+              gifs.map((gif, index) => (
                 <button
                   key={gif.id}
+                  ref={index === gifs.length - 1 ? lastGifRef : null}
                   onClick={() => {
                     onSelect(gif.images.fixed_height.url);
                     onClose();
@@ -167,6 +227,16 @@ const GifPicker = ({ onSelect, onClose }) => {
                   />
                 </button>
               ))
+            )}
+            {loading && gifs.length > 0 && (
+              <div className="col-span-full flex justify-center items-center py-4">
+                <div 
+                  className="text-lg font-black uppercase animate-pulse"
+                  style={{ color: '#FFD700', textShadow: '2px 2px 0 black' }}
+                >
+                  Loading more... 🎬
+                </div>
+              </div>
             )}
           </div>
         </div>

@@ -1,6 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const MessageContextMenu = ({ isOwn, onEdit, onDelete, onDeleteForEveryone, position, onClose }) => {
+  const [adjustedPosition, setAdjustedPosition] = useState(position);
+
+  useEffect(() => {
+    // Adjust position if menu would go off screen
+    const menuWidth = 200;
+    const menuHeight = isOwn ? 150 : 80;
+    const padding = 10;
+
+    let adjustedX = position.x;
+    let adjustedY = position.y;
+
+    // Check right edge
+    if (adjustedX + menuWidth > window.innerWidth) {
+      adjustedX = window.innerWidth - menuWidth - padding;
+    }
+
+    // Check bottom edge
+    if (adjustedY + menuHeight > window.innerHeight) {
+      adjustedY = window.innerHeight - menuHeight - padding;
+    }
+
+    // Check left edge
+    if (adjustedX < padding) {
+      adjustedX = padding;
+    }
+
+    // Check top edge
+    if (adjustedY < padding) {
+      adjustedY = padding;
+    }
+
+    setAdjustedPosition({ x: adjustedX, y: adjustedY });
+  }, [position, isOwn]);
+
   return (
     <>
       {/* Backdrop to close menu */}
@@ -11,10 +45,10 @@ const MessageContextMenu = ({ isOwn, onEdit, onDelete, onDeleteForEveryone, posi
       
       {/* Context Menu */}
       <div
-        className="absolute z-40 py-1 animate-comic-pop"
+        className="fixed z-40 py-1 animate-comic-pop"
         style={{
-          top: position.y,
-          left: position.x,
+          top: `${adjustedPosition.y}px`,
+          left: `${adjustedPosition.x}px`,
           backgroundColor: 'white',
           border: '3px solid black',
           borderRadius: '8px',

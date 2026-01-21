@@ -199,17 +199,22 @@ const MessageItem = ({ message, isOwn }) => {
               {message.deletedForEveryone ? (
                 <p className="text-base italic opacity-75">🗑️ This message was deleted</p>
               ) : message.type === 'gif' ? (
-                <img
-                  src={message.content}
-                  alt="GIF"
-                  className="rounded-lg"
-                  style={{ 
-                    border: '3px solid black',
-                    maxWidth: '300px',
-                    maxHeight: '300px',
-                    objectFit: 'contain'
-                  }}
-                />
+                <div style={{ maxWidth: '300px', maxHeight: '300px', overflow: 'hidden', borderRadius: '8px' }}>
+                  <img
+                    src={message.content}
+                    alt="GIF"
+                    className="rounded-lg"
+                    style={{ 
+                      border: '3px solid black',
+                      width: '100%',
+                      height: '100%',
+                      maxWidth: '300px',
+                      maxHeight: '300px',
+                      objectFit: 'contain',
+                      display: 'block'
+                    }}
+                  />
+                </div>
               ) : message.type === 'sticker' ? (
                 <div 
                   className="text-center py-2"
@@ -221,17 +226,22 @@ const MessageItem = ({ message, isOwn }) => {
                   {message.content}
                 </div>
               ) : message.type === 'image' ? (
-                <img
-                  src={message.content}
-                  alt="Shared image"
-                  className="rounded-lg"
-                  style={{ 
-                    border: '3px solid black',
-                    width: '250px',
-                    height: '250px',
-                    objectFit: 'cover'
-                  }}
-                />
+                <div style={{ maxWidth: '300px', maxHeight: '300px', overflow: 'hidden', borderRadius: '8px' }}>
+                  <img
+                    src={message.content}
+                    alt="Shared image"
+                    className="rounded-lg"
+                    style={{ 
+                      border: '3px solid black',
+                      width: '100%',
+                      height: '100%',
+                      maxWidth: '300px',
+                      maxHeight: '300px',
+                      objectFit: 'contain',
+                      display: 'block'
+                    }}
+                  />
+                </div>
               ) : message.type === 'audio' ? (
                 <AudioMessage
                   audioUrl={message.content}
