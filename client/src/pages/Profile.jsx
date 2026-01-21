@@ -152,10 +152,12 @@ const Profile = () => {
                 Edit Profile
               </button>
             </div>
+          )}
+        </div>
 
         {/* PIN Lock Settings */}
         <div className="card mt-6">
-          <h3 className="text-xl font-bold mb-4">🔒 Privacy & Security</h3>
+          <h3 className="text-xl font-bold mb-4">Privacy & Security</h3>
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-semibold">PIN Lock</h4>
@@ -165,12 +167,12 @@ const Profile = () => {
             </div>
             <div className="flex items-center space-x-3">
               <span className={`text-sm font-medium ${isPinEnabled ? 'text-green-600' : 'text-gray-500'}`}>
-                {isPinEnabled ? '✓ Enabled' : 'Disabled'}
+                {isPinEnabled ? 'Enabled' : 'Disabled'}
               </span>
               {isPinEnabled ? (
                 <button
                   onClick={() => {
-                    if (confirm('Are you sure you want to disable PIN lock?')) {
+                    if (window.confirm('Are you sure you want to disable PIN lock?')) {
                       disablePin();
                       toast.success('PIN lock disabled');
                     }
@@ -198,8 +200,6 @@ const Profile = () => {
           <PinSetup onComplete={() => setShowPinSetup(false)} />
         </div>
       )}
-        </div>
-      </div>
 
       {/* Notification Settings */}
       <NotificationSettings />
