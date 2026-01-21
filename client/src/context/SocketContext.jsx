@@ -60,26 +60,27 @@ export const SocketProvider = ({ children }) => {
         });
         addMessage(conversation._id, message);
         
+        // Check if user is actively in this conversation
+        const isInActiveChat = activeConversation?._id === conversation._id;
+        
         // Show notification if not in active conversation
-        if (activeConversation?._id !== conversation._id) {
+        if (!isInActiveChat) {
           incrementUnread(conversation._id);
           
-          // Check if running as PWA standalone or tab is hidden
-          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                               window.navigator.standalone || 
-                               document.referrer.includes('android-app://');
+          // Check if app is hidden/closed
+          const isAppHidden = document.hidden || document.visibilityState === 'hidden';
           
-          // Show toast notification (always visible in app)
-          toast.success(`New message from ${message.sender.displayName}`);
-          
-          // Show system notification if tab is hidden OR running as PWA
-          if (document.hidden || isStandalone) {
+          // Only show system notification if app is closed/hidden
+          if (isAppHidden) {
             notificationService.showMessageNotification(
               message.sender.displayName,
               message.content,
               message.type
             );
             notificationService.playNotificationSound();
+          } else {
+            // Show in-app toast only when app is visible but not in this chat
+            toast.success(`New message from ${message.sender.displayName}`);
           }
         }
       });

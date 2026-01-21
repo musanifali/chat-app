@@ -58,33 +58,15 @@ class NotificationService {
 
   // Show notification for new message
   async showMessageNotification(sender, messageContent, messageType = 'text') {
-    let body = messageContent;
-    let icon = '/icon-192.png';
-
-    switch (messageType) {
-      case 'image':
-        body = '📷 Sent an image';
-        break;
-      case 'audio':
-        body = '🎤 Sent a voice message';
-        break;
-      case 'gif':
-        body = '🎬 Sent a GIF';
-        break;
-      case 'sticker':
-        body = `🎨 ${messageContent}`;
-        break;
-      default:
-        body = messageContent.length > 50 
-          ? messageContent.substring(0, 50) + '...'
-          : messageContent;
-    }
+    const icon = '/icon-192.png';
+    const title = 'DuBu Chat';
+    const body = 'New notification';
 
     // Try to use service worker for PWA notifications (more reliable on mobile)
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        await registration.showNotification(`💬 ${sender}`, {
+        await registration.showNotification(title, {
           body,
           icon,
           badge: '/icon-192.png',
@@ -104,7 +86,7 @@ class NotificationService {
     }
 
     // Fallback to regular notification API
-    const notification = this.showNotification(`💬 ${sender}`, {
+    const notification = this.showNotification(title, {
       body,
       icon,
       data: {
