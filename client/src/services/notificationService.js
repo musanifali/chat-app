@@ -57,9 +57,9 @@ class NotificationService {
   }
 
   // Show notification for new message
-  showMessageNotification(sender, messageContent, messageType = 'text') {
+  async showMessageNotification(sender, messageContent, messageType = 'text') {
     let body = messageContent;
-    let icon = '/logo.png';
+    let icon = '/icon-192.png';
 
     switch (messageType) {
       case 'image':
@@ -80,6 +80,30 @@ class NotificationService {
           : messageContent;
     }
 
+    // Try to use service worker for PWA notifications (more reliable on mobile)
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.showNotification(`💬 ${sender}`, {
+          body,
+          icon,
+          badge: '/icon-192.png',
+          vibrate: [200, 100, 200],
+          tag: 'dubu-chat-message',
+          requireInteraction: false,
+          data: {
+            type: 'new-message',
+            sender,
+            url: window.location.origin
+          }
+        });
+        return true;
+      } catch (error) {
+        console.error('Service Worker notification failed:', error);
+      }
+    }
+
+    // Fallback to regular notification API
     const notification = this.showNotification(`💬 ${sender}`, {
       body,
       icon,

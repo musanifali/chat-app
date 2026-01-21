@@ -60,13 +60,20 @@ export const SocketProvider = ({ children }) => {
         });
         addMessage(conversation._id, message);
         
-        // Show notification if not in active conversation and tab is not focused
+        // Show notification if not in active conversation
         if (activeConversation?._id !== conversation._id) {
           incrementUnread(conversation._id);
+          
+          // Check if running as PWA standalone or tab is hidden
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                               window.navigator.standalone || 
+                               document.referrer.includes('android-app://');
+          
+          // Show toast notification (always visible in app)
           toast.success(`New message from ${message.sender.displayName}`);
           
-          // Show desktop notification if tab is not focused
-          if (document.hidden) {
+          // Show system notification if tab is hidden OR running as PWA
+          if (document.hidden || isStandalone) {
             notificationService.showMessageNotification(
               message.sender.displayName,
               message.content,
