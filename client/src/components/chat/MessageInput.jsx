@@ -115,8 +115,10 @@ const MessageInput = ({ onSend, conversationId }) => {
         backgroundColor: '#fff5e6',
         borderTop: '4px solid black',
         boxShadow: '0 -4px 0 #FFD700',
-        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',\n        backgroundSize: '8px 8px',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))'\n      }}
+        backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',
+        backgroundSize: '8px 8px',
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))'
+      }}
     >
       <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">
         <button
