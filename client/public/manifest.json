@@ -1,0 +1,32 @@
+{
+  "name": "DuBu Chat - Comic Style Messenger",
+  "short_name": "DuBu Chat",
+  "description": "A fun comic-style chat app with reactions, GIFs, and stickers!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff5e6",
+  "theme_color": "#FFD700",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "communication"],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    }
+  ]
+}
