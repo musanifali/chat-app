@@ -1,0 +1,62 @@
+/* Mobile Responsiveness Fixes */
+
+/* 
+ * Add these CSS rules to handle mobile-specific issues
+ * Prevents keyboard from covering input
+ * Ensures proper viewport handling
+ */
+
+/* Safe area handling for iOS notch and home indicator */
+@supports (padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  .safe-top {
+    padding-top: max(0.5rem, env(safe-area-inset-top)) !important;
+  }
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px !important; /* Minimum 16px prevents iOS zoom */
+  }
+}
+
+/* Better touch targets on mobile */
+@media screen and (max-width: 640px) {
+  button, a, input[type="button"], input[type="submit"] {
+    min-height: 44px; /* iOS recommended touch target */
+  }
+}
+
+/* Prevent overscroll/bounce on chat window */
+.chat-messages {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better mobile scrolling */
+@media screen and (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Fix for mobile keyboard pushing content */
+@media screen and (max-width: 768px) {
+  .mobile-viewport-fix {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+}

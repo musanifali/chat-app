@@ -30,8 +30,7 @@ const Home = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] w-screen flex bg-comic-cream overflow-hidden">
-      {/* Mobile Overlay */}
+    <div className="h-[calc(100vh-3.5rem)] h-[calc(100dvh-3.5rem)] sm:h-[calc(100vh-4rem)] sm:h-[calc(100dvh-4rem)] w-screen flex bg-comic-cream overflow-hidden mobile-viewport-fix">\n      {/* Mobile Overlay */}
       {showSidebar && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"

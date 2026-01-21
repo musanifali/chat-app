@@ -217,14 +217,15 @@ const ChatWindow = ({ onToggleSidebar }) => {
 
       {/* Messages */}
       <div 
-        className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 min-h-0"
+        className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 min-h-0 chat-messages"
         style={{
           backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',
           backgroundSize: '8px 8px',
           backgroundColor: '#fff5e6',
-          scrollbarWidth: 'none',
+          scrollbarWidth: 'thin',
           msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
         }}
       >
         {loading ? (
