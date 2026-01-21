@@ -14,7 +14,7 @@ const messageSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['text', 'image', 'audio'],
+    enum: ['text', 'image', 'audio', 'gif', 'sticker'],
     default: 'text',
   },
   content: {
@@ -56,6 +56,16 @@ const messageSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  reactions: [{
+    emoji: {
+      type: String,
+      required: true,
+    },
+    users: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
+  }],
 }, {
   timestamps: true,
 });

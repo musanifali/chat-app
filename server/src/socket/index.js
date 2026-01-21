@@ -271,6 +271,185 @@ export const initializeSocket = (server) => {
       }
     });
 
+    // Handle message reactions
+    socket.on('messageReaction', async (data) => {
+      try {
+        const { messageId, emoji, action } = data; // action: 'add' or 'remove'
+        
+        const message = await Message.findById(messageId).populate('sender', '_id displayName');
+        
+        if (!message) {
+          return socket.emit('error', { message: 'Message not found' });
+        }
+
+        // Find or create reaction entry for this emoji
+        let reactionEntry = message.reactions.find(r => r.emoji === emoji);
+
+        if (action === 'add') {
+          if (!reactionEntry) {
+            // Create new reaction entry
+            message.reactions.push({
+              emoji,
+              users: [socket.userId]
+            });
+          } else {
+            // Add user to existing reaction if not already there
+            if (!reactionEntry.users.includes(socket.userId)) {
+              reactionEntry.users.push(socket.userId);
+            }
+          }
+        } else if (action === 'remove') {
+          if (reactionEntry) {
+            // Remove user from reaction
+            reactionEntry.users = reactionEntry.users.filter(
+              userId => userId.toString() !== socket.userId
+            );
+            
+            // Remove reaction entry if no users left
+            if (reactionEntry.users.length === 0) {
+              message.reactions = message.reactions.filter(r => r.emoji !== emoji);
+            }
+          }
+        }
+
+        await message.save();
+
+        // Emit updated reactions to all participants in the conversation
+        const conversation = await Conversation.findById(message.conversationId);
+        
+        const reactionUpdate = {
+          messageId: message._id,
+          conversationId: message.conversationId,
+          reactions: message.reactions,
+        };
+
+        conversation.participants.forEach((participantId) => {
+          const participantSocketId = userSockets.get(participantId.toString());
+          if (participantSocketId) {
+            io.to(participantSocketId).emit('messageReactionUpdate', reactionUpdate);
+          }
+        });
+
+        console.log(`💖 Reaction ${action}: ${emoji} on message ${messageId} by ${socket.userId}`);
+      } catch (error) {
+        console.error('Message reaction error:', error);
+        socket.emit('error', { message: 'Failed to update reaction' });
+      }
+    });
+
+    // Handle message editing
+    socket.on('editMessage', async (data) => {
+      try {
+        const { messageId, newContent } = data;
+
+        const message = await Message.findById(messageId);
+
+        if (!message) {
+          return socket.emit('error', { message: 'Message not found' });
+        }
+
+        // Verify the user is the sender
+        if (message.sender.toString() !== socket.userId) {
+          return socket.emit('error', { message: 'Unauthorized to edit this message' });
+        }
+
+        // Only allow editing text messages
+        if (message.type !== 'text') {
+          return socket.emit('error', { message: 'Can only edit text messages' });
+        }
+
+        // Update message
+        message.content = newContent;
+        message.isEdited = true;
+        message.editedAt = new Date();
+        await message.save();
+
+        // Notify all participants
+        const conversation = await Conversation.findById(message.conversationId);
+        
+        const messageUpdate = {
+          messageId: message._id,
+          conversationId: message.conversationId,
+          content: message.content,
+          isEdited: true,
+          editedAt: message.editedAt,
+        };
+
+        conversation.participants.forEach((participantId) => {
+          const participantSocketId = userSockets.get(participantId.toString());
+          if (participantSocketId) {
+            io.to(participantSocketId).emit('messageEdited', messageUpdate);
+          }
+        });
+
+        console.log(`✏️ Message edited: ${messageId} by ${socket.userId}`);
+      } catch (error) {
+        console.error('Message edit error:', error);
+        socket.emit('error', { message: 'Failed to edit message' });
+      }
+    });
+
+    // Handle message deletion
+    socket.on('deleteMessage', async (data) => {
+      try {
+        const { messageId, deleteForEveryone } = data;
+
+        const message = await Message.findById(messageId);
+
+        if (!message) {
+          return socket.emit('error', { message: 'Message not found' });
+        }
+
+        // Verify the user is the sender
+        if (message.sender.toString() !== socket.userId) {
+          return socket.emit('error', { message: 'Unauthorized to delete this message' });
+        }
+
+        const conversation = await Conversation.findById(message.conversationId);
+
+        if (deleteForEveryone) {
+          // Delete for everyone
+          message.deletedForEveryone = true;
+          message.content = 'This message was deleted';
+          message.type = 'text';
+          await message.save();
+
+          // Notify all participants
+          const deletionUpdate = {
+            messageId: message._id,
+            conversationId: message.conversationId,
+            deletedForEveryone: true,
+          };
+
+          conversation.participants.forEach((participantId) => {
+            const participantSocketId = userSockets.get(participantId.toString());
+            if (participantSocketId) {
+              io.to(participantSocketId).emit('messageDeleted', deletionUpdate);
+            }
+          });
+
+          console.log(`🗑️ Message deleted for everyone: ${messageId} by ${socket.userId}`);
+        } else {
+          // Delete only for sender
+          if (!message.deletedFor.includes(socket.userId)) {
+            message.deletedFor.push(socket.userId);
+            await message.save();
+          }
+
+          socket.emit('messageDeleted', {
+            messageId: message._id,
+            conversationId: message.conversationId,
+            deletedForMe: true,
+          });
+
+          console.log(`🗑️ Message deleted for user: ${messageId} by ${socket.userId}`);
+        }
+      } catch (error) {
+        console.error('Message delete error:', error);
+        socket.emit('error', { message: 'Failed to delete message' });
+      }
+    });
+
     // Handle disconnect
     socket.on('disconnect', async () => {
       console.log(`User disconnected: ${socket.userId}`);

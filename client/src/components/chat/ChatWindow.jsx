@@ -3,6 +3,7 @@ import { Clock } from 'lucide-react';
 import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 import { useSocket } from '../../context/SocketContext';
+import offlineService from '../../services/offlineService';
 import api from '../../services/api';
 import MessageItem from './MessageItem';
 import MessageInput from './MessageInput';
@@ -92,6 +93,22 @@ const ChatWindow = ({ onToggleSidebar }) => {
       content: content?.substring(0, 30),
       type
     });
+
+    // Check if offline
+    if (!offlineService.checkOnlineStatus()) {
+      // Queue the message
+      const queuedMessage = offlineService.queueMessage(
+        activeConversation._id,
+        content,
+        type,
+        audioDuration
+      );
+      
+      toast.success('📦 Message queued - will send when online');
+      return;
+    }
+
+    // Send normally if online
     socket.emit('sendMessage', {
       conversationId: activeConversation._id,
       content,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
+import NotificationSettings from '../components/settings/NotificationSettings';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -150,6 +151,9 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Notification Settings */}
+      <NotificationSettings />
     </div>
   );
 };

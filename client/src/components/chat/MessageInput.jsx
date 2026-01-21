@@ -1,12 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { useSocket } from '../../context/SocketContext';
 import VoiceRecorder from './VoiceRecorder';
+import GifPicker from './GifPicker';
+import StickerPicker from './StickerPicker';
 import toast from 'react-hot-toast';
 
 const MessageInput = ({ onSend, conversationId }) => {
   const [message, setMessage] = useState('');
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const socket = useSocket();
   const fileInputRef = useRef(null);
 
@@ -82,6 +86,17 @@ const MessageInput = ({ onSend, conversationId }) => {
     setShowVoiceRecorder(false);
   };
 
+  const handleGifSelect = (gifUrl) => {
+    onSend(gifUrl, 'gif');
+    toast.success('GIF sent! 🎬');
+  };
+
+  const handleStickerSelect = (sticker) => {
+    // Send sticker as a special text message with emoji + label
+    onSend(`${sticker.emoji} ${sticker.label}`, 'sticker');
+    toast.success('Sticker sent! 🎨');
+  };
+
   if (showVoiceRecorder) {
     return (
       <div className="bg-white border-t border-gray-200 px-6 py-4">
@@ -110,7 +125,7 @@ const MessageInput = ({ onSend, conversationId }) => {
           onClick={() => setShowVoiceRecorder(true)}
           className="px-3 py-3 transition-all hover:scale-110"
           style={{
-            backgroundColor: '#ffff00',
+            backgroundColor: '#FFD700',
             border: '3px solid black',
             boxShadow: '3px 3px 0 black',
             borderRadius: '12px'
@@ -127,23 +142,56 @@ const MessageInput = ({ onSend, conversationId }) => {
           onClick={() => fileInputRef.current?.click()}
           className="px-3 py-3 transition-all hover:scale-110"
           style={{
-            backgroundColor: '#ffff00',
+            backgroundColor: '#FFD700',
             border: '3px solid black',
             boxShadow: '3px 3px 0 black',
             borderRadius: '12px'
           }}
+          title="Send image"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
         </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-        />
+
+        {/* GIF Button */}
+        <button
+          type="button"
+          onClick={() => setShowGifPicker(true)}
+          className="px-2 sm:px-3 py-2 sm:py-3 transition-all hover:scale-110 flex items-center justify-center"
+          style={{
+            backgroundColor: '#00D9FF',
+            border: '3px solid black',
+            boxShadow: '3px 3px 0 black',
+            borderRadius: '12px'
+          }}
+          title="Send GIF"
+        >
+          <span className="text-xs sm:text-base font-black">GIF</span>
+        </button>
+
+        {/* Sticker Button */}
+        <button
+          type="button"
+          onClick={() => setShowStickerPicker(true)}
+          className="px-2 sm:px-3 py-2 sm:py-3 transition-all hover:scale-110 flex items-center justify-center"
+          style={{
+            backgroundColor: '#00D9FF',
+            border: '3px solid black',
+            boxShadow: '3px 3px 0 black',
+            borderRadius: '12px'
+          }}
+          title="Send sticker"
+        >
+          <span className="text-base sm:text-xl">🎨</span>
+        </button>
 
         <input
           type="text"
@@ -194,6 +242,22 @@ const MessageInput = ({ onSend, conversationId }) => {
           <span className="sm:hidden">⚡</span>
         </button>
       </form>
+
+      {/* GIF Picker Modal */}
+      {showGifPicker && (
+        <GifPicker 
+          onSelect={handleGifSelect}
+          onClose={() => setShowGifPicker(false)}
+        />
+      )}
+
+      {/* Sticker Picker Modal */}
+      {showStickerPicker && (
+        <StickerPicker
+          onSelect={handleStickerSelect}
+          onClose={() => setShowStickerPicker(false)}
+        />
+      )}
     </div>
   );
 };

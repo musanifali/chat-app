@@ -4,6 +4,7 @@ import { useChatStore } from '../store/chatStore';
 import api from '../services/api';
 import ConversationList from '../components/chat/ConversationList';
 import ChatWindow from '../components/chat/ChatWindow';
+import OfflineIndicator from '../components/common/OfflineIndicator';
 import toast from 'react-hot-toast';
 
 const Home = () => {
@@ -116,6 +117,9 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {/* Offline Indicator */}
+      <OfflineIndicator />
     </div>
   );
 };
