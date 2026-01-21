@@ -80,10 +80,8 @@ const ChatWindow = ({ onToggleSidebar }) => {
       setMessages(activeConversation._id, response.data.messages);
       // Scroll to bottom after messages are loaded
       setTimeout(() => {
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
-        }
-      }, 100);
+        scrollToBottom();
+      }, 150);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error('Failed to load messages');
@@ -93,7 +91,13 @@ const ChatWindow = ({ onToggleSidebar }) => {
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.parentElement;
+      if (container) {
+        // Force scroll to absolute bottom
+        container.scrollTop = container.scrollHeight;
+      }
+    }
   };
 
   const handleSendMessage = (content, type = 'text', audioDuration = null) => {
@@ -143,7 +147,7 @@ const ChatWindow = ({ onToggleSidebar }) => {
     <div className="h-full w-full flex flex-col overflow-hidden" style={{ backgroundColor: '#fff5e6' }}>
       {/* Header */}
       <div 
-        className="px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-shrink-0 z-10"
+        className="px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-shrink-0 z-10 overflow-hidden"
         style={{
           background: '#FFD700',
           borderBottom: '4px solid black',
@@ -189,11 +193,14 @@ const ChatWindow = ({ onToggleSidebar }) => {
             )}
           </div>
           <h2 
-            className="text-base sm:text-xl md:text-2xl font-black truncate uppercase"
+            className="text-base sm:text-xl md:text-2xl font-black truncate uppercase min-w-0 flex-1"
             style={{
               color: 'black',
               textShadow: '2px 2px 0 rgba(0,0,0,0.2)',
-              letterSpacing: '0.05em'
+              letterSpacing: '0.05em',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}
           >
             @{otherUser?.displayName}
