@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'dubu-chat-v4'; // Updated version for vibration fix
+const CACHE_NAME = 'dubu-chat-v5'; // Updated version for grouped notifications
 const urlsToCache = [
   '/',
   '/index.html',
@@ -73,16 +73,17 @@ self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'DuBu Chat';
   
-  // Use unique tag with timestamp to ensure each notification vibrates
-  const uniqueTag = 'dubu-chat-' + Date.now();
+  // Use conversationId as tag for grouping, but renotify to ensure vibration
+  const conversationId = data.data?.conversationId || '';
+  const notificationTag = conversationId ? `dubu-chat-conv-${conversationId}` : 'dubu-chat-' + Date.now();
   
   const options = {
     body: data.body || 'You have a new message!',
     icon: data.icon || '/icon-192x192.png',
     badge: '/icon-192x192.png',
     vibrate: [200, 100, 200],
-    tag: uniqueTag, // Unique tag so each notification vibrates
-    renotify: true, // Force vibration
+    tag: notificationTag, // Group by conversation, replaces old notification
+    renotify: true, // Vibrate even when updating existing notification
     requireInteraction: false,
     data: data.data || {},
   };

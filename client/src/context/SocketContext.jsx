@@ -100,22 +100,20 @@ export const SocketProvider = ({ children }) => {
           
           // Check if app is visible
           const isAppVisible = document.visibilityState === 'visible';
-          const hasPushSupport = 'serviceWorker' in navigator && 'PushManager' in window;
           
           if (isAppVisible) {
             // App is visible but user is in different chat - show in-app toast
             toast.success(`New message from ${message.sender.displayName}`);
-          } else if (!hasPushSupport) {
-            // App is hidden AND no push support - show browser notification as fallback
+          } else {
+            // App is in background - show notification with grouped tag
             notificationService.showMessageNotification(
               message.sender.displayName,
               message.content,
-              message.type
+              message.type,
+              conversation._id // Pass conversation ID for grouping
             );
             notificationService.playNotificationSound();
           }
-          // If app is hidden AND has push support, backend will send push notification
-          // Don't show notification here to prevent duplicates
         }
       });
 

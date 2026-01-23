@@ -191,10 +191,13 @@ class NotificationService {
   }
 
   // Show notification for new message
-  async showMessageNotification(sender, messageContent, messageType = 'text') {
+  async showMessageNotification(sender, messageContent, messageType = 'text', conversationId = null) {
     const icon = '/icon-192.png';
     const title = 'DuBu Chat';
-    const body = 'New notification';
+    const body = 'You have a new message';
+    
+    // Use conversation ID as tag for grouping (same conversation = same notification updates)
+    const notificationTag = conversationId ? `dubu-chat-conv-${conversationId}` : 'dubu-chat-message';
 
     // Try to use service worker for PWA notifications (more reliable on mobile)
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -205,11 +208,13 @@ class NotificationService {
           icon,
           badge: '/icon-192.png',
           vibrate: [200, 100, 200],
-          tag: 'dubu-chat-message',
+          tag: notificationTag, // Group by conversation
+          renotify: true, // Vibrate even when replacing existing notification
           requireInteraction: false,
           data: {
             type: 'new-message',
             sender,
+            conversationId,
             url: window.location.origin
           }
         });
