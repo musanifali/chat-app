@@ -7,6 +7,7 @@ export const useChatStore = create((set, get) => ({
   messages: {},
   unreadCount: {},
   onlineUsers: [], // Changed from Set to Array for React re-renders
+  paginationInfo: {}, // { conversationId: { currentPage, totalPages, hasMore } }
 
   setConversations: (conversations) => set({ conversations }),
 
@@ -93,5 +94,9 @@ export const useChatStore = create((set, get) => ({
 
   clearUnread: (conversationId) => set((state) => ({
     unreadCount: { ...state.unreadCount, [conversationId]: 0 },
+  })),
+
+  setPaginationInfo: (conversationId, info) => set((state) => ({
+    paginationInfo: { ...state.paginationInfo, [conversationId]: info },
   })),
 }));

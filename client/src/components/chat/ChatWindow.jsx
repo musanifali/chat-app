@@ -12,11 +12,12 @@ import { Badge } from '../ui/badge';
 import toast from 'react-hot-toast';
 
 const ChatWindow = ({ onToggleSidebar }) => {
-  const { activeConversation, messages, setMessages, addMessage, onlineUsers } = useChatStore();
+  const { activeConversation, messages, setMessages, addMessage, onlineUsers, paginationInfo, setPaginationInfo } = useChatStore();
   const { user } = useAuthStore();
   const socket = useSocket();
   const messagesEndRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [typing, setTyping] = useState(false);
 
   useEffect(() => {
@@ -95,19 +96,54 @@ const ChatWindow = ({ onToggleSidebar }) => {
     }
   }, [messages[activeConversation?._id]]);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (page = 1, append = false) => {
     try {
-      const response = await api.get(`/chat/conversations/${activeConversation._id}/messages`);
-      setMessages(activeConversation._id, response.data.messages);
-      // Scroll to bottom after messages are loaded
-      setTimeout(() => {
-        scrollToBottom();
-      }, 150);
+      const response = await api.get(`/chat/conversations/${activeConversation._id}/messages`, {
+        params: { page, limit: 50 }
+      });
+      
+      if (append) {
+        // Append older messages for pagination
+        const currentMessages = messages[activeConversation._id] || [];
+        setMessages(activeConversation._id, [...response.data.messages, ...currentMessages]);
+      } else {
+        // Replace messages on initial load
+        setMessages(activeConversation._id, response.data.messages);
+        // Scroll to bottom after messages are loaded
+        setTimeout(() => {
+          scrollToBottom();
+        }, 150);
+      }
+      
+      // Store pagination info
+      setPaginationInfo(activeConversation._id, {
+        currentPage: response.data.currentPage,
+        totalPages: response.data.totalPages,
+        hasMore: response.data.currentPage < response.data.totalPages
+      });
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error('Failed to load messages');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreMessages = async () => {
+    if (!activeConversation || loadingMore) return;
+    
+    const pagination = paginationInfo[activeConversation._id];
+    if (!pagination || !pagination.hasMore) return;
+    
+    setLoadingMore(true);
+    try {
+      const nextPage = pagination.currentPage + 1;
+      await fetchMessages(nextPage, true);
+    } catch (error) {
+      console.error('Error loading more messages:', error);
+      toast.error('Failed to load more messages');
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -281,6 +317,19 @@ const ChatWindow = ({ onToggleSidebar }) => {
           </div>
         ) : (
           <>
+            {/* Load More Button */}
+            {paginationInfo[activeConversation._id]?.hasMore && (
+              <div className="text-center py-4">
+                <button
+                  onClick={loadMoreMessages}
+                  disabled={loadingMore}
+                  className="px-4 py-2 bg-comic-blue text-white font-bangers text-lg uppercase border-comic border-black rounded-comic shadow-comic hover:shadow-comic-lg transition-all disabled:opacity-50"
+                >
+                  {loadingMore ? '⏳ LOADING...' : '⬆️ LOAD MORE'}
+                </button>
+              </div>
+            )}
+            
             {conversationMessages.map((message) => (
               <MessageItem
                 key={message._id}
