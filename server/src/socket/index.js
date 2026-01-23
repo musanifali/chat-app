@@ -138,19 +138,16 @@ export const initializeSocket = (server) => {
         const isRecipientOnline = userSockets.has(otherParticipant.toString());
         
         if (!isRecipientOnline) {
-          // Recipient is offline - send push notification
-          const sender = await User.findById(socket.userId);
+          // Recipient is offline - send push notification (PRIVACY: Generic message)
           const notificationPayload = {
             type: 'message',
-            title: sender.displayName || sender.username,
-            body: type === 'text' ? content : type === 'image' ? '📷 Image' : '🎤 Voice message',
-            icon: sender.avatarUrl || '/icon-192x192.png',
+            title: 'DuBu Chat',
+            body: 'You have a new message',
+            icon: '/icon-192x192.png',
             data: {
               conversationId: conversationId,
               messageId: message._id.toString(),
               senderId: socket.userId,
-              senderName: sender.displayName || sender.username,
-              senderAvatar: sender.avatarUrl,
             },
             url: `/?chat=${conversationId}`,
           };
@@ -170,13 +167,12 @@ export const initializeSocket = (server) => {
             conversationId: conversationId 
           });
           
-          // Also emit delivered to the recipient so they can auto-mark as read
+          // Emit delivered to the recipient (no auto-read)
           const recipientSocketId = userSockets.get(otherParticipant.toString());
           if (recipientSocketId) {
             io.to(recipientSocketId).emit('messageDelivered', { 
               messageId: message._id,
-              conversationId: conversationId,
-              autoRead: true  // Flag to indicate should auto-mark as read
+              conversationId: conversationId
             });
           }
         }
