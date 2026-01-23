@@ -20,10 +20,26 @@ const usePinStore = create(
       verifyPin: (pin) => {
         const { pinHash } = get();
         const hash = CryptoJS.SHA256(pin).toString();
+        
+        // Check new SHA-256 hash
         if (hash === pinHash) {
           set({ isLocked: false });
           return true;
         }
+        
+        // Migration: Check if old base64 hash matches (for backward compatibility)
+        try {
+          const oldHash = btoa(pin);
+          if (oldHash === pinHash) {
+            // Migrate to new SHA-256 hash
+            set({ pinHash: hash, isLocked: false });
+            console.log('PIN migrated to new secure hash');
+            return true;
+          }
+        } catch (e) {
+          // btoa failed, not a valid old hash
+        }
+        
         return false;
       },
       
@@ -49,11 +65,28 @@ const usePinStore = create(
       changePin: (oldPin, newPin) => {
         const { pinHash } = get();
         const oldHash = CryptoJS.SHA256(oldPin).toString();
+        
+        // Check new SHA-256 hash
         if (oldHash === pinHash) {
           const newHash = CryptoJS.SHA256(newPin).toString();
           set({ pinHash: newHash });
           return true;
         }
+        
+        // Migration: Check if old base64 hash matches
+        try {
+          const oldBase64Hash = btoa(oldPin);
+          if (oldBase64Hash === pinHash) {
+            // Migrate to new SHA-256 hash
+            const newHash = CryptoJS.SHA256(newPin).toString();
+            set({ pinHash: newHash });
+            console.log('PIN migrated to new secure hash during change');
+            return true;
+          }
+        } catch (e) {
+          // btoa failed
+        }
+        
         return false;
       },
     }),
