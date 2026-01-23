@@ -3,21 +3,42 @@ import Notification from '../models/Notification.model.js';
 import webpush from 'web-push';
 
 // VAPID keys for Web Push (generate with: npx web-push generate-vapid-keys)
-// Store these in .env for production!
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BKxU_Qx8KnJ5pPdVwGQVGkGhJhJ5rkj9_Qx8KnJ5pPdVwGQVGkGhJhJ5rkj9_Qx8KnJ5pPdVwGQVGkGhJhJ5rkj9';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'your-private-key-here';
+// MUST be set in production environment variables!
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
 
-webpush.setVapidDetails(
-  'mailto:support@dubu-chat.com',
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
+// Validate VAPID keys are set
+if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  console.error('❌ VAPID keys not set! Push notifications will NOT work.');
+  console.error('Generate keys with: npx web-push generate-vapid-keys');
+  console.error('Then set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY environment variables');
+  
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('VAPID keys required in production!');
+  }
+}
+
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:support@dubu-chat.com',
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+  );
+  console.log('✅ Web Push configured with VAPID keys');
+}
 
 // Subscribe to push notifications
 export const subscribeToPush = async (req, res) => {
   try {
+    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+      return res.status(503).json({
+        success: false,
+        message: 'Push notifications not configured on server',
+      });
+    }
+    
     const { endpoint, keys } = req.body;
-    const userId = req.user.uid;
+    const userId = req.user._id;
 
     // Check if subscription already exists
     let subscription = await PushSubscription.findOne({ endpoint });
@@ -77,7 +98,7 @@ export const unsubscribeFromPush = async (req, res) => {
 // Get missed notifications (undelivered notifications since last online)
 export const getMissedNotifications = async (req, res) => {
   try {
-    const userId = req.user.uid;
+    const userId = req.user._id;
     const { since } = req.query; // Timestamp of last online
 
     const query = {
@@ -117,7 +138,7 @@ export const getMissedNotifications = async (req, res) => {
 // Mark notifications as read
 export const markAsRead = async (req, res) => {
   try {
-    const userId = req.user.uid;
+    const userId = req.user._id;
     const { notificationIds } = req.body;
 
     await Notification.updateMany(
@@ -142,7 +163,7 @@ export const markAsRead = async (req, res) => {
 // Get unread notification count
 export const getUnreadCount = async (req, res) => {
   try {
-    const userId = req.user.uid;
+    const userId = req.user._id;
 
     const count = await Notification.countDocuments({
       user: userId,
@@ -230,6 +251,13 @@ export const sendPushToUser = async (userId, payload) => {
 
 // Get VAPID public key
 export const getVapidPublicKey = (req, res) => {
+  if (!VAPID_PUBLIC_KEY) {
+    return res.status(503).json({
+      success: false,
+      message: 'Push notifications not configured. VAPID keys missing.',
+    });
+  }
+  
   res.status(200).json({
     success: true,
     publicKey: VAPID_PUBLIC_KEY,
