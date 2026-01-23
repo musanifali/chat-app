@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import usePinStore from '../store/pinStore';
-import NotificationSettings from '../components/settings/NotificationSettings';
+import NotificationSettings from '../components/common/NotificationSettings';
 import PinSetup from '../components/pin/PinSetup';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -194,15 +194,17 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Notification Settings */}
+      <div className="mt-6">
+        <NotificationSettings />
+      </div>
+
       {/* PIN Setup Modal */}
       {showPinSetup && (
         <div className="fixed inset-0 z-50">
           <PinSetup onComplete={() => setShowPinSetup(false)} />
         </div>
       )}
-
-      {/* Notification Settings */}
-      <NotificationSettings />
     </div>
   );
 };

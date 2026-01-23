@@ -68,15 +68,18 @@ self.addEventListener('fetch', (event) => {
 
 // Push notification support
 self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push received:', event);
+  
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'DuBu Chat';
   const options = {
     body: data.body || 'You have a new message!',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    icon: data.icon || '/icon-192x192.png',
+    badge: '/icon-192x192.png',
     vibrate: [200, 100, 200],
     tag: 'dubu-chat-notification',
     requireInteraction: false,
+    data: data.data || {},
   };
 
   event.waitUntil(
@@ -86,18 +89,29 @@ self.addEventListener('push', (event) => {
 
 // Notification click handler
 self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Notification clicked:', event.notification);
   event.notification.close();
+  
+  const urlToOpen = event.notification.data?.url || '/';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // If app is already open, focus it
+        // If app is already open, focus it and navigate
         for (let client of clientList) {
           if (client.url.includes(self.registration.scope) && 'focus' in client) {
-            return client.focus();
+            client.focus();
+            // Navigate to the conversation if data is available
+            if (event.notification.data?.conversationId) {
+              client.navigate(urlToOpen);
+            }
+            return client;
           }
         }
         // Otherwise open new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
         if (clients.openWindow) {
           return clients.openWindow(event.notification.data?.url || '/');
         }

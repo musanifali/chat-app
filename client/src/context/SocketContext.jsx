@@ -31,8 +31,39 @@ export const SocketProvider = ({ children }) => {
     if (isAuthenticated && token) {
       const socket = socketService.connect(token);
 
-      // Request notification permission
-      notificationService.requestPermission();
+      // Initialize push notifications
+      const initPushNotifications = async () => {
+        try {
+          await notificationService.initialize();
+          
+          // Request permission and subscribe to push
+          const hasPermission = await notificationService.requestPermission();
+          if (hasPermission) {
+            await notificationService.subscribeToPush();
+          }
+
+          // Fetch missed notifications since last online
+          const lastOnline = localStorage.getItem('lastOnline');
+          if (lastOnline) {
+            const missedNotifications = await notificationService.getMissedNotifications(lastOnline);
+            
+            // Show count if there are missed notifications
+            if (missedNotifications.length > 0) {
+              toast.success(`You have ${missedNotifications.length} new ${missedNotifications.length === 1 ? 'message' : 'messages'}!`, {
+                duration: 5000,
+                icon: '💬',
+              });
+            }
+          }
+          
+          // Update last online time
+          localStorage.setItem('lastOnline', Date.now().toString());
+        } catch (error) {
+          console.error('Failed to initialize push notifications:', error);
+        }
+      };
+
+      initPushNotifications();
 
       // Setup offline service callback
       offlineService.setSocketEmitCallback((message, callback) => {
