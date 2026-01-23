@@ -98,21 +98,24 @@ export const SocketProvider = ({ children }) => {
         if (!isInActiveChat) {
           incrementUnread(conversation._id);
           
-          // Check if app is hidden/closed
-          const isAppHidden = document.hidden || document.visibilityState === 'hidden';
+          // Check if app is visible
+          const isAppVisible = document.visibilityState === 'visible';
+          const hasPushSupport = 'serviceWorker' in navigator && 'PushManager' in window;
           
-          // Only show system notification if app is closed/hidden
-          if (isAppHidden) {
+          if (isAppVisible) {
+            // App is visible but user is in different chat - show in-app toast
+            toast.success(`New message from ${message.sender.displayName}`);
+          } else if (!hasPushSupport) {
+            // App is hidden AND no push support - show browser notification as fallback
             notificationService.showMessageNotification(
               message.sender.displayName,
               message.content,
               message.type
             );
             notificationService.playNotificationSound();
-          } else {
-            // Show in-app toast only when app is visible but not in this chat
-            toast.success(`New message from ${message.sender.displayName}`);
           }
+          // If app is hidden AND has push support, backend will send push notification
+          // Don't show notification here to prevent duplicates
         }
       });
 

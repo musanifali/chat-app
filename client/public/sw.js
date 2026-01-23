@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'dubu-chat-v2'; // Updated version to force refresh
+const CACHE_NAME = 'dubu-chat-v4'; // Updated version for vibration fix
 const urlsToCache = [
   '/',
   '/index.html',
@@ -72,12 +72,17 @@ self.addEventListener('push', (event) => {
   
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'DuBu Chat';
+  
+  // Use unique tag with timestamp to ensure each notification vibrates
+  const uniqueTag = 'dubu-chat-' + Date.now();
+  
   const options = {
     body: data.body || 'You have a new message!',
     icon: data.icon || '/icon-192x192.png',
     badge: '/icon-192x192.png',
     vibrate: [200, 100, 200],
-    tag: 'dubu-chat-notification',
+    tag: uniqueTag, // Unique tag so each notification vibrates
+    renotify: true, // Force vibration
     requireInteraction: false,
     data: data.data || {},
   };

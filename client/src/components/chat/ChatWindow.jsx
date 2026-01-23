@@ -23,10 +23,24 @@ const ChatWindow = ({ onToggleSidebar }) => {
     if (activeConversation) {
       fetchMessages();
       
-      // Mark conversation as read when opened
-      socket.emit('markConversationRead', { 
-        conversationId: activeConversation._id 
-      });
+      // Mark conversation as read when opened (only if app is visible)
+      if (document.visibilityState === 'visible') {
+        socket.emit('markConversationRead', { 
+          conversationId: activeConversation._id 
+        });
+      }
+      
+      // Handle visibility change - mark as read when user returns to app
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && activeConversation) {
+          // User returned to app - mark all unread messages in active conversation as read
+          socket.emit('markConversationRead', { 
+            conversationId: activeConversation._id 
+          });
+        }
+      };
+      
+      document.addEventListener('visibilitychange', handleVisibilityChange);
       
       // Listen for typing events
       socket.on('userTyping', ({ conversationId }) => {
@@ -50,15 +64,22 @@ const ChatWindow = ({ onToggleSidebar }) => {
         );
       });
 
-      // Listen for delivered messages with autoRead flag (for active conversation)
-      socket.on('messageDelivered', ({ messageId, conversationId, autoRead }) => {
-        if (autoRead && conversationId === activeConversation._id) {
-          // Immediately mark as read since user is viewing this conversation
+      // Listen for delivered messages - mark as read only if user is viewing
+      socket.on('messageDelivered', ({ messageId, conversationId }) => {
+        // Only mark as read if:
+        // 1. This is the active conversation
+        // 2. App is visible (not in background)
+        // 3. Document is focused
+        if (conversationId === activeConversation._id && 
+            document.visibilityState === 'visible' && 
+            !document.hidden) {
+          // User is actively viewing this conversation - mark as read
           socket.emit('messageRead', { messageId, conversationId });
         }
       });
 
       return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
         socket.off('userTyping');
         socket.off('userStoppedTyping');
         socket.off('messageStatusUpdate');
