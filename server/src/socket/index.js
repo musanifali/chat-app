@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Message from '../models/Message.js';
 import Conversation from '../models/Conversation.js';
+import { sendPushToUser } from '../controllers/notification.controller.js';
 
 const userSockets = new Map(); // userId -> socketId mapping
 
@@ -129,11 +130,39 @@ export const initializeSocket = (server) => {
           }
         });
 
-        // Update message status to delivered for online users
+        // Check if recipient is offline and send push notification
         const otherParticipant = conversation.participants.find(
           (p) => p.toString() !== socket.userId
         );
-        if (userSockets.has(otherParticipant.toString())) {
+        
+        const isRecipientOnline = userSockets.has(otherParticipant.toString());
+        
+        if (!isRecipientOnline) {
+          // Recipient is offline - send push notification
+          const sender = await User.findById(socket.userId);
+          const notificationPayload = {
+            type: 'message',
+            title: sender.displayName || sender.username,
+            body: type === 'text' ? content : type === 'image' ? '📷 Image' : '🎤 Voice message',
+            icon: sender.avatarUrl || '/icon-192x192.png',
+            data: {
+              conversationId: conversationId,
+              messageId: message._id.toString(),
+              senderId: socket.userId,
+              senderName: sender.displayName || sender.username,
+              senderAvatar: sender.avatarUrl,
+            },
+            url: `/?chat=${conversationId}`,
+          };
+          
+          // Send push notification
+          sendPushToUser(otherParticipant.toString(), notificationPayload).catch(err => {
+            console.error('Failed to send push notification:', err);
+          });
+        }
+
+        // Update message status to delivered for online users
+        if (isRecipientOnline) {
           message.status = 'delivered';
           await message.save();
           socket.emit('messageDelivered', { 

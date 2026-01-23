@@ -18,6 +18,7 @@ import userRoutes from './routes/user.routes.js';
 import friendRoutes from './routes/friend.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 
 const app = express();
 const server = createServer(app);
@@ -55,6 +56,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/friends', friendRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
