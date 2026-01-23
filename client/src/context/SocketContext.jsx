@@ -4,6 +4,7 @@ import { useChatStore } from '../store/chatStore';
 import socketService from '../services/socket';
 import notificationService from '../services/notificationService';
 import offlineService from '../services/offlineService';
+import logger from '../utils/logger';
 import toast from 'react-hot-toast';
 
 const SocketContext = createContext(null);
@@ -59,7 +60,7 @@ export const SocketProvider = ({ children }) => {
           // Update last online time
           localStorage.setItem('lastOnline', Date.now().toString());
         } catch (error) {
-          console.error('Failed to initialize push notifications:', error);
+          logger.error('Failed to initialize push notifications:', error);
         }
       };
 
@@ -83,7 +84,7 @@ export const SocketProvider = ({ children }) => {
 
       // Listen for new messages
       socket.on('newMessage', ({ message, conversation }) => {
-        console.log('📨 New Message Event:', {
+        logger.log('📨 New Message Event:', {
           messageId: message._id,
           conversationId: conversation._id,
           status: message.status,
@@ -119,12 +120,12 @@ export const SocketProvider = ({ children }) => {
 
       // Listen for message status updates
       socket.on('messageDelivered', ({ messageId, conversationId }) => {
-        console.log('📩 Message Delivered Event:', { messageId, conversationId });
+        logger.log('📩 Message Delivered Event:', { messageId, conversationId });
         updateMessage(conversationId, messageId, { status: 'delivered' });
       });
 
       socket.on('messageRead', ({ messageId, conversationId }) => {
-        console.log('✅ Message Read Event:', { messageId, conversationId });
+        logger.log('✅ Message Read Event:', { messageId, conversationId });
         updateMessage(conversationId, messageId, { status: 'read' });
       });
 
@@ -192,7 +193,19 @@ export const SocketProvider = ({ children }) => {
         notificationService.playNotificationSound();
       });
 
+      // Cleanup function to remove ALL listeners and prevent memory leaks
       return () => {
+        socket.off('newMessage');
+        socket.off('messageDelivered');
+        socket.off('messageRead');
+        socket.off('messageReactionUpdate');
+        socket.off('messageEdited');
+        socket.off('messageDeleted');
+        socket.off('userOnline');
+        socket.off('userOffline');
+        socket.off('onlineUsersList');
+        socket.off('friendRequest');
+        socket.off('friendRequestAccepted');
         socketService.disconnect();
       };
     }

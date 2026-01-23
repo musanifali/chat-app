@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import CryptoJS from 'crypto-js';
 
 const usePinStore = create(
   persist(
@@ -8,9 +9,9 @@ const usePinStore = create(
       isLocked: false,
       isPinEnabled: false,
       
-      // Set up PIN (hash it for security)
+      // Set up PIN (hash it with SHA-256 for security)
       setupPin: (pin) => {
-        const hash = btoa(pin); // Simple encoding (you can use crypto for better security)
+        const hash = CryptoJS.SHA256(pin).toString();
         set({ pinHash: hash, isPinEnabled: true, isLocked: false });
         return true;
       },
@@ -18,7 +19,7 @@ const usePinStore = create(
       // Verify PIN
       verifyPin: (pin) => {
         const { pinHash } = get();
-        const hash = btoa(pin);
+        const hash = CryptoJS.SHA256(pin).toString();
         if (hash === pinHash) {
           set({ isLocked: false });
           return true;
@@ -47,9 +48,9 @@ const usePinStore = create(
       // Change PIN
       changePin: (oldPin, newPin) => {
         const { pinHash } = get();
-        const oldHash = btoa(oldPin);
+        const oldHash = CryptoJS.SHA256(oldPin).toString();
         if (oldHash === pinHash) {
-          const newHash = btoa(newPin);
+          const newHash = CryptoJS.SHA256(newPin).toString();
           set({ pinHash: newHash });
           return true;
         }

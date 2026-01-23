@@ -1,11 +1,12 @@
 import { create } from 'zustand';
+import logger from '../utils/logger';
 
 export const useChatStore = create((set, get) => ({
   conversations: [],
   activeConversation: null,
   messages: {},
   unreadCount: {},
-  onlineUsers: new Set(),
+  onlineUsers: [], // Changed from Set to Array for React re-renders
 
   setConversations: (conversations) => set({ conversations }),
 
@@ -16,9 +17,9 @@ export const useChatStore = create((set, get) => ({
   setActiveConversation: (conversation) => set({ activeConversation: conversation }),
 
   setMessages: (conversationId, messages) => {
-    console.log('💾 Setting messages for conversation:', conversationId, 'Count:', messages.length);
+    logger.log('💾 Setting messages for conversation:', conversationId, 'Count:', messages.length);
     if (messages.length > 0) {
-      console.log('Last message status:', messages[messages.length - 1].status);
+      logger.log('Last message status:', messages[messages.length - 1].status);
     }
     return set((state) => ({
       messages: { ...state.messages, [conversationId]: messages },
@@ -36,13 +37,13 @@ export const useChatStore = create((set, get) => ({
   }),
 
   updateMessage: (conversationId, messageId, updates) => {
-    console.log('🔄 Updating message:', { conversationId, messageId, updates });
+    logger.log('🔄 Updating message:', { conversationId, messageId, updates });
     return set((state) => {
       const messages = state.messages[conversationId] || [];
       const updatedMessages = messages.map((msg) =>
         msg._id === messageId ? { ...msg, ...updates } : msg
       );
-      console.log('Updated messages count:', updatedMessages.length);
+      logger.log('Updated messages count:', updatedMessages.length);
       return {
         messages: {
           ...state.messages,
@@ -63,20 +64,22 @@ export const useChatStore = create((set, get) => ({
   }),
 
   setUserOnline: (userId) => {
-    console.log('🟢 User came online:', userId);
+    logger.log('🟢 User came online:', userId);
     return set((state) => {
-      const newOnlineUsers = new Set([...state.onlineUsers, userId]);
-      console.log('Online users now:', Array.from(newOnlineUsers));
-      return { onlineUsers: newOnlineUsers };
+      if (!state.onlineUsers.includes(userId)) {
+        const newOnlineUsers = [...state.onlineUsers, userId];
+        logger.log('Online users now:', newOnlineUsers);
+        return { onlineUsers: newOnlineUsers };
+      }
+      return state;
     });
   },
 
   setUserOffline: (userId) => {
-    console.log('🔴 User went offline:', userId);
+    logger.log('🔴 User went offline:', userId);
     return set((state) => {
-      const newOnlineUsers = new Set(state.onlineUsers);
-      newOnlineUsers.delete(userId);
-      console.log('Online users now:', Array.from(newOnlineUsers));
+      const newOnlineUsers = state.onlineUsers.filter(id => id !== userId);
+      logger.log('Online users now:', newOnlineUsers);
       return { onlineUsers: newOnlineUsers };
     });
   },
