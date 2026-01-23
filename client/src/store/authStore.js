@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 export const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
@@ -15,10 +15,24 @@ export const useAuthStore = create(
       })),
       
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      
+      // Initialize auth state from persisted data
+      initializeAuth: () => {
+        const state = get();
+        if (state.token && state.user) {
+          set({ isAuthenticated: true });
+        }
+      },
     }),
     {
       name: 'auth-storage',
       getStorage: () => localStorage,
+      // After rehydration, check if user should be authenticated
+      onRehydrateStorage: () => (state) => {
+        if (state?.token && state?.user) {
+          state.isAuthenticated = true;
+        }
+      },
     }
   )
 );
