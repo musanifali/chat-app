@@ -172,7 +172,7 @@ const ConversationList = ({ conversations, loading, onClose }) => {
       >
         {conversations.map((conversation, index) => {
           const otherUser = getOtherParticipant(conversation);
-          const isOnline = onlineUsers.has(otherUser?._id);
+          const isOnline = onlineUsers.includes(otherUser?._id);
           const isActive = activeConversation?._id === conversation._id;
 
           return (

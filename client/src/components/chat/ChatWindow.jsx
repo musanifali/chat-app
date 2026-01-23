@@ -188,7 +188,7 @@ const ChatWindow = ({ onToggleSidebar }) => {
   };
 
   const otherUser = activeConversation?.participants.find((p) => p._id !== user.id);
-  const isOnline = onlineUsers.has(otherUser?._id);
+  const isOnline = onlineUsers.includes(otherUser?._id);
   const conversationMessages = messages[activeConversation?._id] || [];
 
   // Debug logging
